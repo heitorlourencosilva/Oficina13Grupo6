@@ -1,0 +1,2208 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: ""
+Resources:
+    IAMUser:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "aws_cli_humhub"
+            Tags: 
+              - 
+                Key: "AKIA47JWRWJMCBSM3E6U"
+                Value: "Acessar e enviar imagem Docker"
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06_humhub"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+    IAMUser2:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "heitorlourenco"
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy2
+              - "arn:aws:iam::aws:policy/IAMUserChangePassword"
+
+    IAMUser3:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "heitorlourenco_CLI"
+            Tags: 
+              - 
+                Key: "AKIA47JWRWJMNY4KNQ46"
+                Value: !Sub "Chave para geracao de ${IAMGroup2} como codigo"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/ReadOnlyAccess"
+
+    IAMUser4:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "John"
+            Groups: 
+              - !Ref IAMGroup
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+              - "arn:aws:iam::aws:policy/IAMUserChangePassword"
+
+    IAMUser5:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "ses-smtp-user.20230903-143340"
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06_humhub"
+              - 
+                Key: "InvokedBy"
+                Value: "SESConsole"
+
+    IAMGroup:
+        Type: "AWS::IAM::Group"
+        Properties:
+            Path: "/"
+            GroupName: "desenvolvimento"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+
+    IAMGroup2:
+        Type: "AWS::IAM::Group"
+        Properties:
+            Path: "/"
+            GroupName: "infraestrutura"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+    IAMRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "ec2_acesso_s3"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ec2.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy
+            Description: "Funcao para que instancias ec2 acessem buckets no S3"
+
+    IAMRole2:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "ecsTaskExecutionRole"
+            AssumeRolePolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+    IAMRole3:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "rds-monitoring-role"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"monitoring.rds.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+
+    IAMServiceLinkedRole:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "elasticfilesystem.amazonaws.com"
+
+    IAMServiceLinkedRole2:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "ecs.application-autoscaling.amazonaws.com"
+
+    IAMServiceLinkedRole3:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "ecs.amazonaws.com"
+            Description: "Role to enable Amazon ECS to manage your cluster."
+
+    IAMServiceLinkedRole4:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "backup.amazonaws.com"
+
+    IAMServiceLinkedRole5:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "rds.amazonaws.com"
+            Description: "Allows Amazon RDS to manage AWS resources on your behalf"
+
+    IAMServiceLinkedRole6:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "globalaccelerator.amazonaws.com"
+            Description: "Allows Global Accelerator to call AWS services on customer's behalf"
+
+    IAMServiceLinkedRole7:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "elasticloadbalancing.amazonaws.com"
+            Description: "Allows ELB to call AWS services on your behalf."
+
+    IAMManagedPolicy:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "S3_Acesso"
+            Path: "/"
+            PolicyDocument: |
+                {
+                	"Version": "2012-10-17",
+                	"Statement": [
+                		{
+                			"Sid": "VisualEditor0",
+                			"Effect": "Allow",
+                			"Action": [
+                				"s3:PutObject",
+                				"s3:GetObject",
+                				"s3:ListAllMyBuckets",
+                				"s3:ListBucket"
+                			],
+                			"Resource": "*"
+                		}
+                	]
+                }
+
+    IAMManagedPolicy2:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "userReadOnlyAccess"
+            Path: "/"
+            PolicyDocument: |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": {
+                        "Effect": "Allow",
+                        "Action": [
+                            "iam:Get*",
+                            "iam:List*",
+                            "iam:Generate*"
+                        ],
+                        "Resource": "*"
+                    }
+                }
+
+    IAMPolicy:
+        Type: "AWS::IAM::Policy"
+        Properties:
+            PolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"ses:SendRawEmail\",\"Resource\":\"*\"}]}"
+            Users: 
+              - "ses-smtp-user.20230903-143340"
+            PolicyName: "AmazonSesSendingAccess"
+
+    IAMInstanceProfile:
+        Type: "AWS::IAM::InstanceProfile"
+        Properties:
+            Path: "/"
+            InstanceProfileName: !Ref IAMRole
+            Roles: 
+              - !Ref IAMRole
+
+    IAMAccessKey:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "aws_cli_humhub"
+
+    IAMAccessKey2:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "heitorlourenco_CLI"
+
+    IAMAccessKey3:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "ses-smtp-user.20230903-143340"
+
+    IAMVirtualMFADevice:
+        Type: "AWS::IAM::VirtualMFADevice"
+        Properties:
+            SerialNumber: "arn:aws:iam::891856990808:mfa/MFA_root"
+            Users: 
+              - "arn:aws:iam::891856990808:root"
+
+    EC2VPC:
+        Type: "AWS::EC2::VPC"
+        Properties:
+            CidrBlock: "10.0.0.0/16"
+            EnableDnsSupport: true
+            EnableDnsHostnames: true
+            InstanceTenancy: "default"
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "VPC_TecnoCT"
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+
+    EC2VPCCidrBlock:
+        Type: "AWS::EC2::VPCCidrBlock"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Ipv6CidrBlock: "2600:1f18:799f:de00::/56"
+            Ipv6Pool: "Amazon"
+
+    EC2Subnet:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet3.AvailabilityZone
+            CidrBlock: "10.0.3.0/24"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "subnet_TecnoCT_privada01"
+
+    EC2Subnet2:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet4.AvailabilityZone
+            CidrBlock: "10.0.2.0/24"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "subnet_TecnoCT_publica02"
+
+    EC2Subnet3:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !Sub "${AWS::Region}a"
+            CidrBlock: "10.0.1.0/24"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "subnet_TecnoCT_publica01"
+
+    EC2Subnet4:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !Sub "${AWS::Region}b"
+            CidrBlock: "10.0.4.0/24"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "subnet_TecnoCT_privada02"
+
+    EC2InternetGateway:
+        Type: "AWS::EC2::InternetGateway"
+        Properties:
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "internet_gateway_TecnoCT"
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+
+    EC2EIP:
+        Type: "AWS::EC2::EIP"
+        Properties:
+            Domain: "vpc"
+
+    EC2EIPAssociation:
+        Type: "AWS::EC2::EIPAssociation"
+        Properties:
+            AllocationId: !GetAtt EC2EIP.AllocationId
+            NetworkInterfaceId: "eni-06ef263d3119af53b"
+            PrivateIpAddress: "10.0.2.191"
+
+    EC2EIP2:
+        Type: "AWS::EC2::EIP"
+        Properties:
+            Domain: "vpc"
+
+    EC2EIPAssociation2:
+        Type: "AWS::EC2::EIPAssociation"
+        Properties:
+            AllocationId: !GetAtt EC2EIP2.AllocationId
+            NetworkInterfaceId: "eni-0ec9415603ea25dba"
+            PrivateIpAddress: "10.0.1.165"
+
+    EC2VPCDHCPOptionsAssociation:
+        Type: "AWS::EC2::VPCDHCPOptionsAssociation"
+        Properties:
+            DhcpOptionsId: "dopt-0c4fd45c71efd4a03"
+            VpcId: !Ref EC2VPC
+
+    EC2NetworkAcl:
+        Type: "AWS::EC2::NetworkAcl"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "ACL_Humhub_privada"
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06-humhub"
+
+    EC2NetworkAcl2:
+        Type: "AWS::EC2::NetworkAcl"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "ACL_Humhub_publica"
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06-humhub"
+
+    EC2NetworkAclEntry:
+        Type: "AWS::EC2::NetworkAclEntry"
+        Properties:
+            CidrBlock: "0.0.0.0/0"
+            Egress: true
+            NetworkAclId: !Ref EC2NetworkAcl2
+            Protocol: -1
+            RuleAction: "allow"
+            RuleNumber: 100
+
+    EC2NetworkAclEntry2:
+        Type: "AWS::EC2::NetworkAclEntry"
+        Properties:
+            CidrBlock: "0.0.0.0/0"
+            Egress: false
+            NetworkAclId: !Ref EC2NetworkAcl2
+            PortRange: 
+                From: 22
+                To: 22
+            Protocol: 6
+            RuleAction: "allow"
+            RuleNumber: 22
+
+    EC2NetworkAclEntry3:
+        Type: "AWS::EC2::NetworkAclEntry"
+        Properties:
+            CidrBlock: "0.0.0.0/0"
+            Egress: false
+            NetworkAclId: !Ref EC2NetworkAcl2
+            PortRange: 
+                From: 80
+                To: 80
+            Protocol: 6
+            RuleAction: "allow"
+            RuleNumber: 100
+
+    EC2NetworkAclEntry4:
+        Type: "AWS::EC2::NetworkAclEntry"
+        Properties:
+            CidrBlock: "0.0.0.0/0"
+            Egress: false
+            NetworkAclId: !Ref EC2NetworkAcl2
+            PortRange: 
+                From: 443
+                To: 443
+            Protocol: 6
+            RuleAction: "allow"
+            RuleNumber: 120
+
+    EC2RouteTable:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+
+    EC2RouteTable2:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "rt_TecnoCT_publica"
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+
+    EC2RouteTable3:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "rt_TecnoCT_privada_b"
+
+    EC2RouteTable4:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "rt_TecnoCT_privada_a"
+
+    EC2Route:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            GatewayId: !Ref EC2InternetGateway
+            RouteTableId: !Ref EC2RouteTable2
+
+    EC2Route2:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationIpv6CidrBlock: "::/0"
+            GatewayId: !Ref EC2InternetGateway
+            RouteTableId: !Ref EC2RouteTable2
+
+    EC2Route3:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            NatGatewayId: !Ref EC2NatGateway
+            RouteTableId: !Ref EC2RouteTable3
+
+    EC2Route4:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            NatGatewayId: !Ref EC2NatGateway2
+            RouteTableId: !Ref EC2RouteTable4
+
+    EC2NatGateway:
+        Type: "AWS::EC2::NatGateway"
+        Properties:
+            SubnetId: !Ref EC2Subnet2
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "nat-gateway-publica02-tecnoct"
+            AllocationId: !GetAtt EC2EIP.AllocationId
+
+    EC2NatGateway2:
+        Type: "AWS::EC2::NatGateway"
+        Properties:
+            SubnetId: !Ref EC2Subnet3
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "nat-gateway-publica01-tecnoct"
+            AllocationId: !GetAtt EC2EIP2.AllocationId
+
+    EC2VPCGatewayAttachment:
+        Type: "AWS::EC2::VPCGatewayAttachment"
+        Properties:
+            InternetGatewayId: !Ref EC2InternetGateway
+            VpcId: !Ref EC2VPC
+
+    EC2SubnetRouteTableAssociation:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref EC2RouteTable2
+            SubnetId: !Ref EC2Subnet2
+
+    EC2SubnetRouteTableAssociation2:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref EC2RouteTable2
+            SubnetId: !Ref EC2Subnet3
+
+    EC2SubnetRouteTableAssociation3:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref EC2RouteTable3
+            SubnetId: !Ref EC2Subnet4
+
+    EC2SubnetRouteTableAssociation4:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref EC2RouteTable4
+            SubnetId: !Ref EC2Subnet
+
+    Route53HostedZone:
+        Type: "AWS::Route53::HostedZone"
+        Properties:
+            Name: !Ref Route53RecordSet
+
+    Route53RecordSet:
+        Type: "AWS::Route53::RecordSet"
+        Properties:
+            Name: !Ref Route53RecordSet2
+            Type: "NS"
+            TTL: 172800
+            ResourceRecords: 
+              - "ns-223.awsdns-27.com."
+              - "ns-1538.awsdns-00.co.uk."
+              - "ns-567.awsdns-06.net."
+              - "ns-1303.awsdns-34.org."
+            HostedZoneId: "Z1048411IND1D7U817GK"
+
+    Route53RecordSet2:
+        Type: "AWS::Route53::RecordSet"
+        Properties:
+            Name: "tecnoct.org."
+            Type: "SOA"
+            TTL: 900
+            ResourceRecords: 
+              - "ns-223.awsdns-27.com. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
+            HostedZoneId: "Z1048411IND1D7U817GK"
+
+    ElasticLoadBalancingV2LoadBalancer:
+        Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+        Properties:
+            Name: "apl-humhub-ecs-fargate-service"
+            Scheme: "internet-facing"
+            Type: "application"
+            Subnets: 
+              - !Ref EC2Subnet2
+              - !Ref EC2Subnet3
+            SecurityGroups: 
+              - !Ref EC2SecurityGroup2
+            IpAddressType: "ipv4"
+            LoadBalancerAttributes: 
+              - 
+                Key: "access_logs.s3.enabled"
+                Value: "false"
+              - 
+                Key: "idle_timeout.timeout_seconds"
+                Value: "60"
+              - 
+                Key: "deletion_protection.enabled"
+                Value: "false"
+              - 
+                Key: "routing.http2.enabled"
+                Value: "true"
+              - 
+                Key: "routing.http.drop_invalid_header_fields.enabled"
+                Value: "false"
+              - 
+                Key: "routing.http.xff_client_port.enabled"
+                Value: "false"
+              - 
+                Key: "routing.http.preserve_host_header.enabled"
+                Value: "false"
+              - 
+                Key: "routing.http.xff_header_processing.mode"
+                Value: "append"
+              - 
+                Key: "load_balancing.cross_zone.enabled"
+                Value: "true"
+              - 
+                Key: "routing.http.desync_mitigation_mode"
+                Value: "defensive"
+              - 
+                Key: "waf.fail_open.enabled"
+                Value: "false"
+              - 
+                Key: "routing.http.x_amzn_tls_version_and_cipher_suite.enabled"
+                Value: "false"
+
+    ElasticLoadBalancingV2Listener:
+        Type: "AWS::ElasticLoadBalancingV2::Listener"
+        Properties:
+            LoadBalancerArn: !Ref ElasticLoadBalancingV2LoadBalancer
+            Port: 80
+            Protocol: "HTTP"
+            DefaultActions: 
+              - 
+                Order: 1
+                TargetGroupArn: !Ref ElasticLoadBalancingV2TargetGroup
+                Type: "forward"
+
+    EC2SecurityGroup:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Permite enviar e receber emails da aplicacao humhub"
+            GroupName: "SG_email_humhub_tecnoct"
+            VpcId: !Ref EC2VPC
+            SecurityGroupIngress: 
+              - 
+                CidrIp: !GetAtt EC2VPC.CidrBlock
+                FromPort: 25
+                IpProtocol: "tcp"
+                ToPort: 25
+              - 
+                CidrIp: !GetAtt EC2VPC.CidrBlock
+                FromPort: 465
+                IpProtocol: "tcp"
+                ToPort: 465
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+
+    EC2SecurityGroup2:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Grupo de Seguranca para o APL do Humhub"
+            GroupName: "SG_ELB_humhub"
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06-humhub"
+            VpcId: !Ref EC2VPC
+            SecurityGroupIngress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 443
+                IpProtocol: "tcp"
+                ToPort: 443
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+
+    EC2SecurityGroup3:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Permite controlar o acesso ao endpoint"
+            GroupName: "security-group-vpc-endpoint-humhub-tecnoct"
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06-humhub"
+            VpcId: !Ref EC2VPC
+            SecurityGroupIngress: 
+              - 
+                CidrIp: !GetAtt EC2VPC.CidrBlock
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIp: !GetAtt EC2VPC.CidrBlock
+                FromPort: 443
+                IpProtocol: "tcp"
+                ToPort: 443
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+
+    EC2SecurityGroup4:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Grupo de Seguranca para o APL do Humhub"
+            GroupName: "SG_ALB_humhub"
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06-humhub"
+            VpcId: !Ref EC2VPC
+            SecurityGroupIngress: 
+              - 
+                CidrIp: "0.0.0.0/16"
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIp: "0.0.0.0/16"
+                FromPort: 443
+                IpProtocol: "tcp"
+                ToPort: 443
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/16"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+
+    EC2SecurityGroup5:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Created by RDS management console"
+            GroupName: "sg_db_TecnoCT"
+            VpcId: !Ref EC2VPC
+            SecurityGroupIngress: 
+              - 
+                CidrIp: "189.12.149.202/32"
+                FromPort: !GetAtt RDSDBInstance.Endpoint.Port
+                IpProtocol: "tcp"
+                ToPort: !GetAtt RDSDBInstance.Endpoint.Port
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: !GetAtt RDSDBInstance.Endpoint.Port
+                IpProtocol: "tcp"
+                ToPort: !GetAtt RDSDBInstance.Endpoint.Port
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+
+    EC2SecurityGroup6:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Security Group para tasks do humhub"
+            GroupName: "sg_web_humhub"
+            VpcId: !Ref EC2VPC
+            SecurityGroupIngress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIpv6: "::/0"
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 8080
+                IpProtocol: "tcp"
+                ToPort: 8080
+              - 
+                CidrIpv6: "::/0"
+                FromPort: 8080
+                IpProtocol: "tcp"
+                ToPort: 8080
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 22
+                IpProtocol: "tcp"
+                ToPort: 22
+              - 
+                CidrIpv6: "::/0"
+                FromPort: 22
+                IpProtocol: "tcp"
+                ToPort: 22
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+
+    ElasticLoadBalancingV2TargetGroup:
+        Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+        Properties:
+            HealthCheckIntervalSeconds: 30
+            HealthCheckPath: "/user/auth/login"
+            Port: 80
+            Protocol: "HTTP"
+            HealthCheckPort: "traffic-port"
+            HealthCheckProtocol: "HTTP"
+            HealthCheckTimeoutSeconds: 5
+            UnhealthyThresholdCount: 2
+            TargetType: "ip"
+            Matcher: 
+                HttpCode: "200"
+            HealthyThresholdCount: 5
+            VpcId: !Ref EC2VPC
+            Name: "gd-humhub-tecnoct"
+            HealthCheckEnabled: true
+            TargetGroupAttributes: 
+              - 
+                Key: "target_group_health.unhealthy_state_routing.minimum_healthy_targets.count"
+                Value: "1"
+              - 
+                Key: "stickiness.enabled"
+                Value: "false"
+              - 
+                Key: "target_group_health.unhealthy_state_routing.minimum_healthy_targets.percentage"
+                Value: "off"
+              - 
+                Key: "deregistration_delay.timeout_seconds"
+                Value: "300"
+              - 
+                Key: "target_group_health.dns_failover.minimum_healthy_targets.count"
+                Value: "1"
+              - 
+                Key: "stickiness.app_cookie.cookie_name"
+                Value: ""
+              - 
+                Key: "stickiness.type"
+                Value: "lb_cookie"
+              - 
+                Key: "stickiness.lb_cookie.duration_seconds"
+                Value: "86400"
+              - 
+                Key: "slow_start.duration_seconds"
+                Value: "0"
+              - 
+                Key: "stickiness.app_cookie.duration_seconds"
+                Value: "86400"
+              - 
+                Key: "target_group_health.dns_failover.minimum_healthy_targets.percentage"
+                Value: "off"
+              - 
+                Key: "load_balancing.cross_zone.enabled"
+                Value: "use_load_balancer_configuration"
+              - 
+                Key: "load_balancing.algorithm.type"
+                Value: "round_robin"
+            Targets: 
+              - 
+                Id: "10.0.3.165"
+                Port: 80
+                AvailabilityZone: !GetAtt EC2Subnet.AvailabilityZone
+              - 
+                Id: "10.0.4.203"
+                Port: 80
+                AvailabilityZone: !GetAtt EC2Subnet2.AvailabilityZone
+
+    EC2NetworkInterface:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "arn:aws:ecs:${AWS::Region}:891856990808:attachment/3243b7ea-0f3d-4e5d-bb15-2dd64b7a6559"
+            PrivateIpAddress: "10.0.3.165"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.3.165"
+                Primary: true
+            SubnetId: !Ref EC2Subnet
+            SourceDestCheck: true
+            Tags: 
+              - 
+                Key: "aws:ecs:clusterName"
+                Value: !Ref ECSCluster
+              - 
+                Key: "aws:ecs:serviceName"
+                Value: !GetAtt ECSService.Name
+            GroupSet: 
+              - !Ref EC2SecurityGroup6
+
+    EC2NetworkInterface2:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "ELB app/${ElasticLoadBalancingV2LoadBalancer.LoadBalancerName}/76647e729d1ca177"
+            PrivateIpAddress: "10.0.1.16"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.1.16"
+                Primary: true
+            SubnetId: !Ref EC2Subnet3
+            SourceDestCheck: true
+            GroupSet: 
+              - !Sub "${ElasticLoadBalancingV2LoadBalancer.SecurityGroups}"
+
+    EC2NetworkInterface3:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "arn:aws:ecs:${AWS::Region}:891856990808:attachment/f1f47f32-aecf-48d0-b045-900db0b9fcb9"
+            PrivateIpAddress: "10.0.1.176"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.1.176"
+                Primary: true
+            SubnetId: !Ref EC2Subnet3
+            SourceDestCheck: true
+            Tags: 
+              - 
+                Key: "aws:ecs:clusterName"
+                Value: !Ref ECSCluster
+            GroupSet: 
+              - !Ref EC2SecurityGroup6
+
+    EC2NetworkInterface4:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: "RDSNetworkInterface"
+            PrivateIpAddress: "10.0.1.32"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.1.32"
+                Primary: true
+            SubnetId: !Ref EC2Subnet3
+            SourceDestCheck: true
+            GroupSet: 
+              - !Ref EC2SecurityGroup5
+
+    EC2NetworkInterface5:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "EFS mount target for ${EFSFileSystem2} (${EFSMountTarget4})"
+            PrivateIpAddress: !GetAtt EFSMountTarget4.IpAddress
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: !GetAtt EFSMountTarget4.IpAddress
+                Primary: true
+            SubnetId: !Ref EC2Subnet
+            SourceDestCheck: true
+            GroupSet: 
+              - "sg-00cac7cbb14e0853c"
+
+    EC2NetworkInterface6:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "Interface for NAT Gateway ${EC2NatGateway2}"
+            PrivateIpAddress: "10.0.1.165"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.1.165"
+                Primary: true
+            SubnetId: !Ref EC2Subnet3
+            SourceDestCheck: false
+
+    EC2NetworkInterface7:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "EFS mount target for ${EFSFileSystem} (${EFSMountTarget2})"
+            PrivateIpAddress: !GetAtt EFSMountTarget2.IpAddress
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: !GetAtt EFSMountTarget2.IpAddress
+                Primary: true
+            SubnetId: !Ref EC2Subnet
+            SourceDestCheck: true
+            GroupSet: 
+              - "sg-00cac7cbb14e0853c"
+
+    EC2NetworkInterface8:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "Interface for NAT Gateway ${EC2NatGateway}"
+            PrivateIpAddress: "10.0.2.191"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.2.191"
+                Primary: true
+            SubnetId: !Ref EC2Subnet2
+            SourceDestCheck: false
+
+    EC2NetworkInterface9:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "EFS mount target for ${EFSFileSystem} (${EFSMountTarget})"
+            PrivateIpAddress: !GetAtt EFSMountTarget.IpAddress
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: !GetAtt EFSMountTarget.IpAddress
+                Primary: true
+            SubnetId: !Ref EC2Subnet4
+            SourceDestCheck: true
+            GroupSet: 
+              - "sg-00cac7cbb14e0853c"
+
+    EC2NetworkInterface10:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "arn:aws:ecs:${AWS::Region}:891856990808:attachment/d7a884f4-5618-44ed-9125-1af62db43c1d"
+            PrivateIpAddress: "10.0.4.203"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.4.203"
+                Primary: true
+            SubnetId: !Ref EC2Subnet4
+            SourceDestCheck: true
+            Tags: 
+              - 
+                Key: "aws:ecs:serviceName"
+                Value: !GetAtt ECSService.Name
+              - 
+                Key: "aws:ecs:clusterName"
+                Value: !Ref ECSCluster
+            GroupSet: 
+              - !Ref EC2SecurityGroup6
+
+    EC2NetworkInterface11:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "arn:aws:ecs:${AWS::Region}:891856990808:attachment/88722055-9e6c-4fa5-8a85-2530e5311e63"
+            PrivateIpAddress: "10.0.2.145"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.2.145"
+                Primary: true
+            SubnetId: !Ref EC2Subnet2
+            SourceDestCheck: true
+            Tags: 
+              - 
+                Key: "aws:ecs:clusterName"
+                Value: !Ref ECSCluster
+            GroupSet: 
+              - !Ref EC2SecurityGroup6
+
+    EC2NetworkInterface12:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "EFS mount target for ${EFSFileSystem2} (${EFSMountTarget3})"
+            PrivateIpAddress: !GetAtt EFSMountTarget3.IpAddress
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: !GetAtt EFSMountTarget3.IpAddress
+                Primary: true
+            SubnetId: !Ref EC2Subnet4
+            SourceDestCheck: true
+            GroupSet: 
+              - "sg-00cac7cbb14e0853c"
+
+    EC2NetworkInterface13:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "ELB app/${ElasticLoadBalancingV2LoadBalancer.LoadBalancerName}/76647e729d1ca177"
+            PrivateIpAddress: "10.0.2.106"
+            PrivateIpAddresses: 
+              - 
+                PrivateIpAddress: "10.0.2.106"
+                Primary: true
+            SubnetId: !Ref EC2Subnet2
+            SourceDestCheck: true
+            GroupSet: 
+              - !Sub "${ElasticLoadBalancingV2LoadBalancer.SecurityGroups}"
+
+    RDSDBInstance:
+        Type: "AWS::RDS::DBInstance"
+        Properties:
+            DBInstanceIdentifier: "database-tecnoct"
+            AllocatedStorage: 50
+            DBInstanceClass: "db.t3.micro"
+            Engine: "mysql"
+            MasterUsername: "root"
+            MasterUserPassword: "REPLACEME"
+            DBName: "db_humhub"
+            PreferredBackupWindow: "07:09-07:39"
+            BackupRetentionPeriod: 0
+            AvailabilityZone: !GetAtt EC2Subnet.AvailabilityZone
+            PreferredMaintenanceWindow: "sat:04:21-sat:04:51"
+            MultiAZ: false
+            EngineVersion: "8.0.33"
+            AutoMinorVersionUpgrade: true
+            LicenseModel: "general-public-license"
+            Iops: 3000
+            PubliclyAccessible: true
+            StorageType: "gp3"
+            Port: 3306
+            StorageEncrypted: true
+            KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/9dea037f-b697-4b43-9660-38f751474c41"
+            CopyTagsToSnapshot: true
+            MonitoringInterval: 0
+            EnableIAMDatabaseAuthentication: false
+            EnablePerformanceInsights: false
+            DeletionProtection: false
+            DBSubnetGroupName: !Sub "default-${EC2VPC}"
+            VPCSecurityGroups: 
+              - "sg-057a9c97e2a136f96"
+            MaxAllocatedStorage: 1000
+            DBParameterGroupName: "default.mysql8.0"
+            OptionGroupName: "default:mysql-8-0"
+            CACertificateIdentifier: "rds-ca-2019"
+
+    RDSDBSubnetGroup:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupDescription: "Created from the RDS Management Console"
+            DBSubnetGroupName: !Sub "default-${EC2VPC}"
+            SubnetIds: 
+              - !Ref EC2Subnet
+              - !Ref EC2Subnet2
+              - !Ref EC2Subnet3
+              - !Ref EC2Subnet4
+
+    ElastiCacheUser:
+        Type: "AWS::ElastiCache::User"
+        Properties:
+            UserId: "default"
+            UserName: "default"
+            Engine: "redis"
+            AccessString: "on ~* +@all"
+            NoPasswordRequired: true
+
+    OpsWorksUserProfile:
+        Type: "AWS::OpsWorks::UserProfile"
+        Properties:
+            AllowSelfManagement: false
+            IamUserArn: "arn:aws:iam::891856990808:user/heitorlourenco_CLI"
+            SshUsername: "heitorlourenco_cli"
+
+    CloudWatchAlarm:
+        Type: "AWS::CloudWatch::Alarm"
+        Properties:
+            AlarmName: !Sub "TargetTracking-service/${ECSCluster}/${ECSService.Name}-AlarmHigh-1229205f-77a0-4284-ab37-ce7825bc1393"
+            AlarmDescription: !Sub "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy arn:aws:autoscaling:${AWS::Region}:891856990808:scalingPolicy:043b8f99-e8be-4519-871a-48ddefa403b1:resource/ecs/service/${ECSCluster}/${ECSService.Name}:policyName/policy_humhub_cpu_utilization:createdBy/0a09cedf-4ec2-410f-b39e-6f3b3e2749c7."
+            ActionsEnabled: true
+            AlarmActions: 
+              - !Sub "arn:aws:autoscaling:${AWS::Region}:891856990808:scalingPolicy:043b8f99-e8be-4519-871a-48ddefa403b1:resource/ecs/service/${ECSCluster}/${ECSService.Name}:policyName/policy_humhub_cpu_utilization:createdBy/0a09cedf-4ec2-410f-b39e-6f3b3e2749c7"
+            MetricName: "CPUUtilization"
+            Namespace: "AWS/ECS"
+            Statistic: "Average"
+            Dimensions: 
+              - 
+                Name: "ClusterName"
+                Value: !Ref ECSCluster
+              - 
+                Name: "ServiceName"
+                Value: !GetAtt ECSService.Name
+            Period: 60
+            Unit: "Percent"
+            EvaluationPeriods: 3
+            Threshold: 50
+            ComparisonOperator: "GreaterThanThreshold"
+
+    CloudWatchAlarm2:
+        Type: "AWS::CloudWatch::Alarm"
+        Properties:
+            AlarmName: !Sub "TargetTracking-service/${ECSCluster}/${ECSService.Name}-AlarmLow-1546069a-ebee-4c0a-9f0d-a00e33a7f29d"
+            AlarmDescription: !Sub "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy arn:aws:autoscaling:${AWS::Region}:891856990808:scalingPolicy:043b8f99-e8be-4519-871a-48ddefa403b1:resource/ecs/service/${ECSCluster}/${ECSService.Name}:policyName/policy_humhub_cpu_utilization:createdBy/0a09cedf-4ec2-410f-b39e-6f3b3e2749c7."
+            ActionsEnabled: true
+            AlarmActions: 
+              - !Sub "arn:aws:autoscaling:${AWS::Region}:891856990808:scalingPolicy:043b8f99-e8be-4519-871a-48ddefa403b1:resource/ecs/service/${ECSCluster}/${ECSService.Name}:policyName/policy_humhub_cpu_utilization:createdBy/0a09cedf-4ec2-410f-b39e-6f3b3e2749c7"
+            MetricName: "CPUUtilization"
+            Namespace: "AWS/ECS"
+            Statistic: "Average"
+            Dimensions: 
+              - 
+                Name: "ClusterName"
+                Value: !Ref ECSCluster
+              - 
+                Name: "ServiceName"
+                Value: !GetAtt ECSService.Name
+            Period: 60
+            Unit: "Percent"
+            EvaluationPeriods: 15
+            Threshold: 45
+            ComparisonOperator: "LessThanThreshold"
+
+    LogsLogGroup:
+        Type: "AWS::Logs::LogGroup"
+        Properties:
+            LogGroupName: !Sub "/aws/ecs/containerinsights/${ECSCluster}/performance"
+            RetentionInDays: 1
+
+    LogsLogGroup2:
+        Type: "AWS::Logs::LogGroup"
+        Properties:
+            LogGroupName: "/ecs/task-definition-fargate-aurora-humhubr"
+
+    LogsLogGroup3:
+        Type: "AWS::Logs::LogGroup"
+        Properties:
+            LogGroupName: "/ecs/task-definition-fargate-humhubr"
+
+    ECRRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: "projeto_humhub"
+            LifecyclePolicy: 
+                RegistryId: "891856990808"
+
+    ECSCluster:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: "ecs-fargate-humhub-cluster"
+            CapacityProviders: 
+              - "FARGATE"
+              - "FARGATE_SPOT"
+
+    ECSService:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: "service-fargate-humhub-tecnoct"
+            Cluster: !GetAtt ECSCluster.Arn
+            LoadBalancers: 
+              - 
+                TargetGroupArn: !Ref ElasticLoadBalancingV2TargetGroup
+                ContainerName: "ecr-image-humhub"
+                ContainerPort: 80
+            DesiredCount: 2
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition
+            DeploymentConfiguration: 
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker: 
+                    Enable: true
+                    Rollback: true
+            Role: "arn:aws:iam::891856990808:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                    AssignPublicIp: "DISABLED"
+                    SecurityGroups: 
+                      - !Ref EC2SecurityGroup6
+                    Subnets: 
+                      - !Ref EC2Subnet
+                      - !Ref EC2Subnet4
+            HealthCheckGracePeriodSeconds: 0
+            SchedulingStrategy: "REPLICA"
+            DeploymentController: 
+                Type: "ECS"
+            CapacityProviderStrategy: 
+              - 
+                CapacityProvider: "FARGATE"
+                Weight: 1
+                Base: 0
+
+    ECSTaskDefinition:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Environment: 
+                  - 
+                    Name: "HUMHUB_DB_USER"
+                    Value: "root"
+                  - 
+                    Name: "HUMHUB_DB_HOST"
+                    Value: !GetAtt RDSDBInstance.Endpoint.Address
+                  - 
+                    Name: "HUMHUB_DB_NAME"
+                    Value: "db_humhub"
+                  - 
+                    Name: "HUMHUB_AUTO_INSTALL"
+                    Value: "0"
+                  - 
+                    Name: "HUMHUB_ADMIN_PASSWORD"
+                    Value: "admin"
+                  - 
+                    Name: "HUMHUB_DB_PASSWORD"
+                    Value: "humhub2023"
+                  - 
+                    Name: "HUMHUB_ADMIN_EMAIL"
+                    Value: "humhub@humhub.com"
+                  - 
+                    Name: "HUMHUB_ADMIN_LOGIN"
+                    Value: "admin"
+                Essential: true
+                Image: !Sub "891856990808.dkr.ecr.${AWS::Region}.amazonaws.com/projeto_humhub"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/task-definition-fargate-humhubr"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                MountPoints: 
+                  - 
+                    SourceVolume: "config"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/config"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "uploads"
+                    ContainerPath: "/var/www/localhost/htdocs/uploads"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "modules"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/modules"
+                    ReadOnly: false
+                Name: "ecr-image-humhub"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "task-definition-fargate-humhubr"
+            ExecutionRoleArn: !GetAtt IAMRole2.Arn
+            NetworkMode: "awsvpc"
+            Volumes: 
+              - 
+                Name: "config"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem2
+                    RootDirectory: "/"
+              - 
+                Name: "uploads"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem2
+                    RootDirectory: "/"
+              - 
+                Name: "modules"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem2
+                    RootDirectory: "/"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "2048"
+
+    ECSTaskDefinition2:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Environment: 
+                  - 
+                    Name: "HUMHUB_DB_USER"
+                    Value: "humhub"
+                  - 
+                    Name: "HUMHUB_DB_HOST"
+                    Value: "mysql-5-7-43.cizo1euc0jqz.us-east-2.rds.amazonaws.com"
+                  - 
+                    Name: "HUMHUB_DB_NAME"
+                    Value: "humhub"
+                  - 
+                    Name: "HUMHUB_AUTO_INSTALL"
+                    Value: "0"
+                  - 
+                    Name: "HUMHUB_ADMIN_PASSWORD"
+                    Value: "admin"
+                  - 
+                    Name: "HUMHUB_DB_PASSWORD"
+                    Value: "humhub123"
+                  - 
+                    Name: "HUMHUB_ADMIN_EMAIL"
+                    Value: "humhub@humhub.com"
+                  - 
+                    Name: "HUMHUB_ADMIN_LOGIN"
+                    Value: "admin"
+                Essential: true
+                Image: "mriedmann/humhub:stable"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/task-definition-fargate-aurora-humhubr"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                MountPoints: 
+                  - 
+                    SourceVolume: "config"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/config"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "uploads"
+                    ContainerPath: "/var/www/localhost/htdocs/uploads"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "modules"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/modules"
+                    ReadOnly: false
+                Name: "container-humhub-aurora"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "task-definition-fargate-aurora-humhubr"
+            TaskRoleArn: !GetAtt IAMRole2.Arn
+            ExecutionRoleArn: !GetAtt IAMRole2.Arn
+            NetworkMode: "awsvpc"
+            Volumes: 
+              - 
+                Name: "config"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+              - 
+                Name: "uploads"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+              - 
+                Name: "modules"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "2048"
+
+    ApplicationAutoScalingScalableTarget:
+        Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+        Properties:
+            MaxCapacity: 6
+            MinCapacity: 2
+            ResourceId: !Sub "service/${ECSCluster}/${ECSService.Name}"
+            RoleARN: "arn:aws:iam::891856990808:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+            ScalableDimension: "ecs:service:DesiredCount"
+            ServiceNamespace: "ecs"
+            SuspendedState: 
+                DynamicScalingInSuspended: false
+                DynamicScalingOutSuspended: false
+                ScheduledScalingSuspended: false
+
+    ApplicationAutoScalingScalingPolicy:
+        Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+        Properties:
+            PolicyName: "policy_humhub_cpu_utilization"
+            PolicyType: "TargetTrackingScaling"
+            ResourceId: !Sub "service/${ECSCluster}/${ECSService.Name}"
+            ScalableDimension: "ecs:service:DesiredCount"
+            ServiceNamespace: "ecs"
+            TargetTrackingScalingPolicyConfiguration: 
+                DisableScaleIn: false
+                PredefinedMetricSpecification: 
+                    PredefinedMetricType: "ECSServiceAverageCPUUtilization"
+                TargetValue: 50
+
+    EFSFileSystem:
+        Type: "AWS::EFS::FileSystem"
+        Properties:
+            PerformanceMode: "generalPurpose"
+            Encrypted: true
+            KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/b7ae2764-a87a-4745-bfef-58c19f06fc35"
+            ThroughputMode: "elastic"
+            FileSystemTags: 
+              - 
+                Key: "Name"
+                Value: "EFS-Aurora"
+              - 
+                Key: "aws:elasticfilesystem:default-backup"
+                Value: "enabled"
+
+    EFSFileSystem2:
+        Type: "AWS::EFS::FileSystem"
+        Properties:
+            PerformanceMode: "generalPurpose"
+            Encrypted: true
+            KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/b7ae2764-a87a-4745-bfef-58c19f06fc35"
+            ThroughputMode: "elastic"
+            FileSystemTags: 
+              - 
+                Key: "Name"
+                Value: "efs-humhub"
+              - 
+                Key: "aws:elasticfilesystem:default-backup"
+                Value: "enabled"
+
+    EFSMountTarget:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Ref EFSFileSystem
+            IpAddress: "10.0.4.100"
+            SecurityGroups: 
+              - "sg-00cac7cbb14e0853c"
+            SubnetId: !Ref EC2Subnet4
+
+    EFSMountTarget2:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Ref EFSFileSystem
+            IpAddress: "10.0.3.42"
+            SecurityGroups: 
+              - "sg-00cac7cbb14e0853c"
+            SubnetId: !Ref EC2Subnet
+
+    EFSMountTarget3:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Ref EFSFileSystem2
+            IpAddress: "10.0.4.110"
+            SecurityGroups: 
+              - "sg-00cac7cbb14e0853c"
+            SubnetId: !Ref EC2Subnet4
+
+    EFSMountTarget4:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Ref EFSFileSystem2
+            IpAddress: "10.0.3.250"
+            SecurityGroups: 
+              - "sg-00cac7cbb14e0853c"
+            SubnetId: !Ref EC2Subnet
+
+    NeptuneDBSubnetGroup:
+        Type: "AWS::Neptune::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupName: !Sub "default-${EC2VPC}"
+            DBSubnetGroupDescription: "Created from the RDS Management Console"
+            SubnetIds: 
+              - !Ref EC2Subnet
+              - !Ref EC2Subnet2
+              - !Ref EC2Subnet3
+              - !Ref EC2Subnet4
+
+    DocDBDBSubnetGroup:
+        Type: "AWS::DocDB::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupName: !Sub "default-${EC2VPC}"
+            DBSubnetGroupDescription: "Created from the RDS Management Console"
+            SubnetIds: 
+              - !Ref EC2Subnet
+              - !Ref EC2Subnet2
+              - !Ref EC2Subnet3
+              - !Ref EC2Subnet4
+
+    SESEmailIdentity:
+        Type: "AWS::SES::EmailIdentity"
+        Properties:
+            EmailIdentity: "nccj.pro"
+            DkimAttributes: 
+                SigningEnabled: true
+            MailFromAttributes: 
+                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+            ConfigurationSetAttributes: {}
+            FeedbackAttributes: 
+                EmailForwardingEnabled: true
+
+    SESEmailIdentity2:
+        Type: "AWS::SES::EmailIdentity"
+        Properties:
+            EmailIdentity: "luisfelipe.guariento@gmail.com"
+            DkimAttributes: 
+                SigningEnabled: false
+            MailFromAttributes: 
+                MailFromDomain: "luisfelipe.guariento.gmail.com"
+                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+            ConfigurationSetAttributes: {}
+            FeedbackAttributes: 
+                EmailForwardingEnabled: true
+
+    ServiceDiscoveryHttpNamespace:
+        Type: "AWS::ServiceDiscovery::HttpNamespace"
+        Properties:
+            Name: !Ref ECSCluster
+
+    ApplicationAutoScalingScalableTarget2:
+        Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+        Properties:
+            MaxCapacity: 6
+            MinCapacity: 2
+            ResourceId: !Sub "service/${ECSCluster}/${ECSService.Name}"
+            RoleARN: "arn:aws:iam::891856990808:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+            ScalableDimension: "ecs:service:DesiredCount"
+            ServiceNamespace: "ecs"
+            SuspendedState: 
+                DynamicScalingInSuspended: false
+                DynamicScalingOutSuspended: false
+                ScheduledScalingSuspended: false
+
+    BackupBackupVault:
+        Type: "AWS::Backup::BackupVault"
+        Properties:
+            BackupVaultName: "aws/efs/automatic-backup-vault"
+            EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/a0cfa42e-a750-42d1-b048-6522a6eeba69"
+            AccessPolicy: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Deny\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"backup:DeleteBackupVault\",\"backup:DeleteBackupVaultAccessPolicy\",\"backup:DeleteRecoveryPoint\",\"backup:StartCopyJob\",\"backup:StartRestoreJob\",\"backup:UpdateRecoveryPointLifecycle\"],\"Resource\":\"*\"}]}"
+
+    BackupBackupPlan:
+        Type: "AWS::Backup::BackupPlan"
+        Properties:
+            BackupPlan: 
+                BackupPlanName: "aws/efs/automatic-backup-plan"
+                BackupPlanRule: 
+                  - 
+                    CompletionWindowMinutes: 10080
+                    Lifecycle: 
+                        DeleteAfterDays: 35
+                    RuleName: "aws/efs/automatic-backup-rule"
+                    ScheduleExpression: "cron(0 5 ? * * *)"
+                    StartWindowMinutes: 480
+                    TargetBackupVault: !Ref BackupBackupVault
+
+    BackupBackupSelection:
+        Type: "AWS::Backup::BackupSelection"
+        Properties:
+            BackupPlanId: !Ref BackupBackupPlan
+            BackupSelection: 
+                SelectionName: "aws/efs/automatic-backup-selection"
+                IamRoleArn: "arn:aws:iam::891856990808:role/aws-service-role/backup.amazonaws.com/AWSServiceRoleForBackup"
+                ListOfTags: 
+                  - 
+                    ConditionType: "STRINGEQUALS"
+                    ConditionKey: "aws:elasticfilesystem:default-backup"
+                    ConditionValue: "enabled"
+                Conditions: {}
+
+    PinpointEmailIdentity:
+        Type: "AWS::PinpointEmail::Identity"
+        Properties:
+            Name: "luisfelipe.guariento@gmail.com"
+            DkimSigningEnabled: false
+            FeedbackForwardingEnabled: true
+            MailFromAttributes: 
+                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+                MailFromDomain: "luisfelipe.guariento.gmail.com"
+
+    PinpointEmailIdentity2:
+        Type: "AWS::PinpointEmail::Identity"
+        Properties:
+            Name: "nccj.pro"
+            DkimSigningEnabled: true
+            FeedbackForwardingEnabled: true
+            MailFromAttributes: 
+                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+
+    XRayGroup:
+        Type: "AWS::XRay::Group"
+        Properties:
+            GroupName: "Default"
+            InsightsConfiguration: 
+                InsightsEnabled: false
+                NotificationsEnabled: false
+
+    AppRunnerObservabilityConfiguration:
+        Type: "AWS::AppRunner::ObservabilityConfiguration"
+        Properties:
+            ObservabilityConfigurationName: "DefaultConfiguration"
+            TraceConfiguration: 
+                Vendor: "AWSXRAY"
+
+    MemoryDBParameterGroup:
+        Type: "AWS::MemoryDB::ParameterGroup"
+        Properties:
+            Description: "Default parameter group for memorydb_redis6"
+            Family: "memorydb_redis6"
+            Parameters: 
+              - 
+                Name: "acllog-max-len"
+                Value: "128"
+                Description: "The maximum length of the ACL Log"
+                DataType: "integer"
+                AllowedValues: "1-10000"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "activedefrag"
+                Value: "no"
+                Description: "Enabled active memory defragmentation"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "active-defrag-cycle-max"
+                Value: "75"
+                Description: "Maximal effort for defrag in CPU percentage"
+                DataType: "integer"
+                AllowedValues: "1-75"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "active-defrag-cycle-min"
+                Value: "5"
+                Description: "Minimal effort for defrag in CPU percentage"
+                DataType: "integer"
+                AllowedValues: "1-75"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "active-defrag-ignore-bytes"
+                Value: "104857600"
+                Description: "Minimum amount of fragmentation waste to start active defrag"
+                DataType: "integer"
+                AllowedValues: "1048576-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "active-defrag-max-scan-fields"
+                Value: "1000"
+                Description: "Maximum number of set/hash/zset/list fields that will be processed from the main dictionary scan"
+                DataType: "integer"
+                AllowedValues: "1-1000000"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "active-defrag-threshold-lower"
+                Value: "10"
+                Description: "Minimum percentage of fragmentation to start active defrag"
+                DataType: "integer"
+                AllowedValues: "1-100"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "active-defrag-threshold-upper"
+                Value: "100"
+                Description: "Maximum percentage of fragmentation at which we use maximum effort"
+                DataType: "integer"
+                AllowedValues: "1-100"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "active-expire-effort"
+                Value: "1"
+                Description: "The amount of effort that redis uses to expire items in the active expiration job"
+                DataType: "integer"
+                AllowedValues: "1-10"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "activerehashing"
+                Value: "yes"
+                Description: "Apply rehashing or not"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "client-output-buffer-limit-normal-hard-limit"
+                Value: "0"
+                Description: "Normal client output buffer hard limit in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "client-output-buffer-limit-normal-soft-limit"
+                Value: "0"
+                Description: "Normal client output buffer soft limit in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "client-output-buffer-limit-normal-soft-seconds"
+                Value: "0"
+                Description: "Normal client output buffer soft limit in seconds"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "client-output-buffer-limit-pubsub-hard-limit"
+                Value: "33554432"
+                Description: "Pubsub client output buffer hard limit in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "client-output-buffer-limit-pubsub-soft-limit"
+                Value: "8388608"
+                Description: "Pubsub client output buffer soft limit in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "client-output-buffer-limit-pubsub-soft-seconds"
+                Value: "60"
+                Description: "Pubsub client output buffer soft limit in seconds"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "hash-max-ziplist-entries"
+                Value: "512"
+                Description: "The maximum number of hash entries in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "hash-max-ziplist-value"
+                Value: "64"
+                Description: "The threshold of biggest hash entries in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "hll-sparse-max-bytes"
+                Value: "3000"
+                Description: "HyperLogLog sparse representation bytes limit"
+                DataType: "integer"
+                AllowedValues: "1-16000"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "lazyfree-lazy-eviction"
+                Value: "no"
+                Description: "Perform an asynchronous delete on evictions"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "lazyfree-lazy-expire"
+                Value: "no"
+                Description: "Perform an asynchronous delete on expired keys"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "lazyfree-lazy-server-del"
+                Value: "no"
+                Description: "Perform an asynchronous delete on key updates"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "lazyfree-lazy-user-del"
+                Value: "no"
+                Description: "Specifies whether the default behavior of DEL command acts the same as UNLINK"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "lfu-decay-time"
+                Value: "1"
+                Description: "The amount of time in minutes to decrement the key counter for LFU eviction policyd"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "lfu-log-factor"
+                Value: "10"
+                Description: "The log factor for incrementing key counter for LFU eviction policy"
+                DataType: "integer"
+                AllowedValues: "1-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "list-compress-depth"
+                Value: "0"
+                Description: "Number of quicklist ziplist nodes from each side of the list to exclude from compression. The head and tail of the list are always uncompressed for fast push/pop operations"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "maxmemory-policy"
+                Value: "noeviction"
+                Description: "Max memory policy"
+                DataType: "string"
+                AllowedValues: "volatile-lru,allkeys-lru,volatile-lfu,allkeys-lfu,volatile-random,allkeys-random,volatile-ttl,noeviction"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "maxmemory-samples"
+                Value: "3"
+                Description: "Max memory samples"
+                DataType: "integer"
+                AllowedValues: "1-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "notify-keyspace-events"
+                Description: "The keyspace events for Redis to notify Pub/Sub clients about. By default all notifications are disabled"
+                DataType: "string"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "set-max-intset-entries"
+                Value: "512"
+                Description: "The limit in the size of the set in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "slowlog-log-slower-than"
+                Value: "10000"
+                Description: "The execution time, in microseconds, to exceed in order for the command to get logged. Note that a negative number disables the slow log, while a value of zero forces the logging of every command"
+                DataType: "integer"
+                AllowedValues: "-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "slowlog-max-len"
+                Value: "128"
+                Description: "The length of the slow log. There is no limit to this length. Just be aware that it will consume memory. You can reclaim memory used by the slow log with SLOWLOG RESET."
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "stream-node-max-bytes"
+                Value: "4096"
+                Description: "The maximum size of a single node in a stream in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "stream-node-max-entries"
+                Value: "100"
+                Description: "The maximum number of items a single node in a stream can contain"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "tcp-keepalive"
+                Value: "300"
+                Description: "If non-zero, send ACKs every given number of seconds"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "timeout"
+                Value: "0"
+                Description: "Close connection if client is idle for a given number of seconds, or never if 0"
+                DataType: "integer"
+                AllowedValues: "0,20-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "tracking-table-max-keys"
+                Value: "1000000"
+                Description: "The maximum number of keys allowed for the tracking table for client side caching"
+                DataType: "integer"
+                AllowedValues: "1-100000000"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "zset-max-ziplist-entries"
+                Value: "128"
+                Description: "The maximum number of sorted set entries in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+              - 
+                Name: "zset-max-ziplist-value"
+                Value: "64"
+                Description: "The threshold of biggest sorted set entries in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "6.2.4"
+
+    MemoryDBParameterGroup2:
+        Type: "AWS::MemoryDB::ParameterGroup"
+        Properties:
+            Description: "Default parameter group for memorydb_redis7"
+            Family: "memorydb_redis7"
+            Parameters: 
+              - 
+                Name: "acllog-max-len"
+                Value: "128"
+                Description: "The maximum length of the ACL Log"
+                DataType: "integer"
+                AllowedValues: "1-10000"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "active-defrag-cycle-max"
+                Value: "75"
+                Description: "Maximal effort for defrag in CPU percentage"
+                DataType: "integer"
+                AllowedValues: "1-75"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "active-defrag-cycle-min"
+                Value: "5"
+                Description: "Minimal effort for defrag in CPU percentage"
+                DataType: "integer"
+                AllowedValues: "1-75"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "active-defrag-ignore-bytes"
+                Value: "104857600"
+                Description: "Minimum amount of fragmentation waste to start active defrag"
+                DataType: "integer"
+                AllowedValues: "1048576-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "active-defrag-max-scan-fields"
+                Value: "1000"
+                Description: "Maximum number of set/hash/zset/list fields that will be processed from the main dictionary scan"
+                DataType: "integer"
+                AllowedValues: "1-1000000"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "active-defrag-threshold-lower"
+                Value: "10"
+                Description: "Minimum percentage of fragmentation to start active defrag"
+                DataType: "integer"
+                AllowedValues: "1-100"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "active-defrag-threshold-upper"
+                Value: "100"
+                Description: "Maximum percentage of fragmentation at which we use maximum effort"
+                DataType: "integer"
+                AllowedValues: "1-100"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "active-expire-effort"
+                Value: "1"
+                Description: "The amount of effort that redis uses to expire items in the active expiration job"
+                DataType: "integer"
+                AllowedValues: "1-10"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "client-output-buffer-limit-normal-hard-limit"
+                Value: "0"
+                Description: "Normal client output buffer hard limit in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "client-output-buffer-limit-normal-soft-limit"
+                Value: "0"
+                Description: "Normal client output buffer soft limit in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "client-output-buffer-limit-normal-soft-seconds"
+                Value: "0"
+                Description: "Normal client output buffer soft limit in seconds"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "client-output-buffer-limit-pubsub-hard-limit"
+                Value: "33554432"
+                Description: "Pubsub client output buffer hard limit in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "client-output-buffer-limit-pubsub-soft-limit"
+                Value: "8388608"
+                Description: "Pubsub client output buffer soft limit in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "client-output-buffer-limit-pubsub-soft-seconds"
+                Value: "60"
+                Description: "Pubsub client output buffer soft limit in seconds"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "hash-max-listpack-entries"
+                Value: "512"
+                Description: "The maximum number of hash entries in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "hash-max-listpack-value"
+                Value: "64"
+                Description: "The threshold of biggest hash entries in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "hll-sparse-max-bytes"
+                Value: "3000"
+                Description: "HyperLogLog sparse representation bytes limit"
+                DataType: "integer"
+                AllowedValues: "1-16000"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "latency-tracking"
+                Value: "no"
+                Description: "Track the per command latencies and enable exporting the percentile distribution via the INFO latencystats command and cumulative latency distributions (histograms) via the LATENCY command."
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "lazyfree-lazy-eviction"
+                Value: "no"
+                Description: "Perform an asynchronous delete on evictions"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "lazyfree-lazy-expire"
+                Value: "no"
+                Description: "Perform an asynchronous delete on expired keys"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "lazyfree-lazy-server-del"
+                Value: "no"
+                Description: "Perform an asynchronous delete on key updates"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "lazyfree-lazy-user-del"
+                Value: "no"
+                Description: "Specifies whether the default behavior of DEL command acts the same as UNLINK"
+                DataType: "string"
+                AllowedValues: "yes,no"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "lfu-decay-time"
+                Value: "1"
+                Description: "The amount of time in minutes to decrement the key counter for LFU eviction policyd"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "lfu-log-factor"
+                Value: "10"
+                Description: "The log factor for incrementing key counter for LFU eviction policy"
+                DataType: "integer"
+                AllowedValues: "1-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "list-compress-depth"
+                Value: "0"
+                Description: "Number of quicklist ziplist nodes from each side of the list to exclude from compression. The head and tail of the list are always uncompressed for fast push/pop operations"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "maxmemory-policy"
+                Value: "noeviction"
+                Description: "Max memory policy"
+                DataType: "string"
+                AllowedValues: "volatile-lru,allkeys-lru,volatile-lfu,allkeys-lfu,volatile-random,allkeys-random,volatile-ttl,noeviction"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "maxmemory-samples"
+                Value: "3"
+                Description: "Max memory samples"
+                DataType: "integer"
+                AllowedValues: "1-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "notify-keyspace-events"
+                Description: "The keyspace events for Redis to notify Pub/Sub clients about. By default all notifications are disabled"
+                DataType: "string"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "set-max-intset-entries"
+                Value: "512"
+                Description: "The limit in the size of the set in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "slowlog-log-slower-than"
+                Value: "10000"
+                Description: "The execution time, in microseconds, to exceed in order for the command to get logged. Note that a negative number disables the slow log, while a value of zero forces the logging of every command"
+                DataType: "integer"
+                AllowedValues: "-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "slowlog-max-len"
+                Value: "128"
+                Description: "The length of the slow log. There is no limit to this length. Just be aware that it will consume memory. You can reclaim memory used by the slow log with SLOWLOG RESET."
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "stream-node-max-bytes"
+                Value: "4096"
+                Description: "The maximum size of a single node in a stream in bytes"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "stream-node-max-entries"
+                Value: "100"
+                Description: "The maximum number of items a single node in a stream can contain"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "tcp-keepalive"
+                Value: "300"
+                Description: "If non-zero, send ACKs every given number of seconds"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "timeout"
+                Value: "0"
+                Description: "Close connection if client is idle for a given number of seconds, or never if 0"
+                DataType: "integer"
+                AllowedValues: "0,20-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "tracking-table-max-keys"
+                Value: "1000000"
+                Description: "The maximum number of keys allowed for the tracking table for client side caching"
+                DataType: "integer"
+                AllowedValues: "1-100000000"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "zset-max-listpack-entries"
+                Value: "128"
+                Description: "The maximum number of sorted set entries in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+              - 
+                Name: "zset-max-listpack-value"
+                Value: "64"
+                Description: "The threshold of biggest sorted set entries in order for the dataset to be compressed"
+                DataType: "integer"
+                AllowedValues: "0-"
+                MinimumEngineVersion: "7.0.5"
+
