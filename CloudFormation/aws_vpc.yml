@@ -1,0 +1,314 @@
+Resources:
+    EC2VPC:
+        Type: "AWS::EC2::VPC"
+        Properties:
+            CidrBlock: "10.0.0.0/16"
+            EnableDnsSupport: true
+            EnableDnsHostnames: true
+            InstanceTenancy: "default"
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "VPC_TecnoCT"
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+
+    EC2VPCCidrBlock:
+        Type: "AWS::EC2::VPCCidrBlock"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Ipv6CidrBlock: "2600:1f18:799f:de00::/56"
+            Ipv6Pool: "Amazon"
+
+    EC2Subnet:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet3.AvailabilityZone
+            CidrBlock: "10.0.3.0/24"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "subnet_TecnoCT_privada01"
+
+    EC2Subnet2:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet4.AvailabilityZone
+            CidrBlock: "10.0.2.0/24"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "subnet_TecnoCT_publica02"
+
+    EC2Subnet3:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !Sub "${AWS::Region}a"
+            CidrBlock: "10.0.1.0/24"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "subnet_TecnoCT_publica01"
+
+    EC2Subnet4:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !Sub "${AWS::Region}b"
+            CidrBlock: "10.0.4.0/24"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "subnet_TecnoCT_privada02"
+
+    EC2InternetGateway:
+        Type: "AWS::EC2::InternetGateway"
+        Properties:
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "internet_gateway_TecnoCT"
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+
+    EC2VPCDHCPOptionsAssociation:
+        Type: "AWS::EC2::VPCDHCPOptionsAssociation"
+        Properties:
+            DhcpOptionsId: "dopt-0c4fd45c71efd4a03"
+            VpcId: !Ref EC2VPC
+
+    EC2NetworkAcl:
+        Type: "AWS::EC2::NetworkAcl"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "ACL_Humhub_privada"
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06-humhub"
+
+    EC2NetworkAcl2:
+        Type: "AWS::EC2::NetworkAcl"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "ACL_Humhub_publica"
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06-humhub"
+
+    EC2NetworkAclEntry:
+        Type: "AWS::EC2::NetworkAclEntry"
+        Properties:
+            CidrBlock: "0.0.0.0/0"
+            Egress: true
+            NetworkAclId: !Ref EC2NetworkAcl2
+            Protocol: -1
+            RuleAction: "allow"
+            RuleNumber: 100
+
+    EC2NetworkAclEntry2:
+        Type: "AWS::EC2::NetworkAclEntry"
+        Properties:
+            CidrBlock: "0.0.0.0/0"
+            Egress: false
+            NetworkAclId: !Ref EC2NetworkAcl2
+            PortRange: 
+                From: 22
+                To: 22
+            Protocol: 6
+            RuleAction: "allow"
+            RuleNumber: 22
+
+    EC2NetworkAclEntry3:
+        Type: "AWS::EC2::NetworkAclEntry"
+        Properties:
+            CidrBlock: "0.0.0.0/0"
+            Egress: false
+            NetworkAclId: !Ref EC2NetworkAcl2
+            PortRange: 
+                From: 80
+                To: 80
+            Protocol: 6
+            RuleAction: "allow"
+            RuleNumber: 100
+
+    EC2NetworkAclEntry4:
+        Type: "AWS::EC2::NetworkAclEntry"
+        Properties:
+            CidrBlock: "0.0.0.0/0"
+            Egress: false
+            NetworkAclId: !Ref EC2NetworkAcl2
+            PortRange: 
+                From: 443
+                To: 443
+            Protocol: 6
+            RuleAction: "allow"
+            RuleNumber: 120
+
+    EC2RouteTable:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+
+    EC2RouteTable2:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "rt_TecnoCT_publica"
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+
+    EC2RouteTable3:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "rt_TecnoCT_privada_b"
+
+    EC2RouteTable4:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "oficina13_grupo06_humhub"
+              - 
+                Key: "Name"
+                Value: "rt_TecnoCT_privada_a"
+
+    EC2Route:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            GatewayId: !Ref EC2InternetGateway
+            RouteTableId: !Ref EC2RouteTable2
+
+    EC2Route2:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationIpv6CidrBlock: "::/0"
+            GatewayId: !Ref EC2InternetGateway
+            RouteTableId: !Ref EC2RouteTable2
+
+    EC2Route3:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            NatGatewayId: !Ref EC2NatGateway
+            RouteTableId: !Ref EC2RouteTable3
+
+    EC2Route4:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            NatGatewayId: !Ref EC2NatGateway2
+            RouteTableId: !Ref EC2RouteTable4
+
+    EC2NatGateway:
+        Type: "AWS::EC2::NatGateway"
+        Properties:
+            SubnetId: !Ref EC2Subnet2
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "nat-gateway-publica02-tecnoct"
+            AllocationId: !GetAtt EC2EIP.AllocationId
+
+    EC2NatGateway2:
+        Type: "AWS::EC2::NatGateway"
+        Properties:
+            SubnetId: !Ref EC2Subnet3
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "nat-gateway-publica01-tecnoct"
+            AllocationId: !GetAtt EC2EIP2.AllocationId
+
+    EC2VPCGatewayAttachment:
+        Type: "AWS::EC2::VPCGatewayAttachment"
+        Properties:
+            InternetGatewayId: !Ref EC2InternetGateway
+            VpcId: !Ref EC2VPC
+
+    EC2SubnetRouteTableAssociation:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref EC2RouteTable2
+            SubnetId: !Ref EC2Subnet2
+
+    EC2SubnetRouteTableAssociation2:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref EC2RouteTable2
+            SubnetId: !Ref EC2Subnet3
+
+    EC2SubnetRouteTableAssociation3:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref EC2RouteTable3
+            SubnetId: !Ref EC2Subnet4
+
+    EC2SubnetRouteTableAssociation4:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref EC2RouteTable4
+            SubnetId: !Ref EC2Subnet
+
+# TODO Elastic IP
+    EC2EIP:
+        Type: "AWS::EC2::EIP"
+        Properties:
+            Domain: "vpc"
+
+    EC2EIPAssociation:
+        Type: "AWS::EC2::EIPAssociation"
+        Properties:
+            AllocationId: !GetAtt EC2EIP.AllocationId
+            NetworkInterfaceId: "eni-06ef263d3119af53b"
+            PrivateIpAddress: "10.0.2.191"
+
+    EC2EIP2:
+        Type: "AWS::EC2::EIP"
+        Properties:
+            Domain: "vpc"
+
+    EC2EIPAssociation2:
+        Type: "AWS::EC2::EIPAssociation"
+        Properties:
+            AllocationId: !GetAtt EC2EIP2.AllocationId
+            NetworkInterfaceId: "eni-0ec9415603ea25dba"
+            PrivateIpAddress: "10.0.1.165"
+

@@ -1,0 +1,49 @@
+Resources:
+    RDSDBInstance:
+        Type: "AWS::RDS::DBInstance"
+        Properties:
+            DBInstanceIdentifier: "database-tecnoct"
+            AllocatedStorage: 50
+            DBInstanceClass: "db.t3.micro"
+            Engine: "mysql"
+            MasterUsername: "root"
+            MasterUserPassword: "REPLACEME"
+            DBName: "db_humhub"
+            PreferredBackupWindow: "07:09-07:39"
+            BackupRetentionPeriod: 0
+            AvailabilityZone: !GetAtt EC2Subnet.AvailabilityZone
+            PreferredMaintenanceWindow: "sat:04:21-sat:04:51"
+            MultiAZ: false
+            EngineVersion: "8.0.33"
+            AutoMinorVersionUpgrade: true
+            LicenseModel: "general-public-license"
+            Iops: 3000
+            PubliclyAccessible: true
+            StorageType: "gp3"
+            Port: 3306
+            StorageEncrypted: true
+            KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/9dea037f-b697-4b43-9660-38f751474c41"
+            CopyTagsToSnapshot: true
+            MonitoringInterval: 0
+            EnableIAMDatabaseAuthentication: false
+            EnablePerformanceInsights: false
+            DeletionProtection: false
+            DBSubnetGroupName: !Sub "default-${EC2VPC}"
+            VPCSecurityGroups: 
+              - "sg-057a9c97e2a136f96"
+            MaxAllocatedStorage: 1000
+            DBParameterGroupName: "default.mysql8.0"
+            OptionGroupName: "default:mysql-8-0"
+            CACertificateIdentifier: "rds-ca-2019"
+
+    RDSDBSubnetGroup:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupDescription: "Created from the RDS Management Console"
+            DBSubnetGroupName: !Sub "default-${EC2VPC}"
+            SubnetIds: 
+              - !Ref EC2Subnet
+              - !Ref EC2Subnet2
+              - !Ref EC2Subnet3
+              - !Ref EC2Subnet4
+

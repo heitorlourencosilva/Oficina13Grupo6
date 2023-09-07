@@ -1,5 +1,25 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: ""
 Resources:
-  SubstackA:
+  SubstackIAM:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: substack-amp.yml
+      TemplateURL: aws_iam.yml
+  SubstackVPC:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_vpc.yml
+  SubstackRoute53:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_route53.yml
+  SubstackEC2:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_ec2.yml
+  SubstackRDS:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_db.yml

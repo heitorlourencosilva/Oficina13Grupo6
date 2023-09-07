@@ -1,0 +1,230 @@
+Resources:
+    IAMUser:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "aws_cli_humhub"
+            Tags: 
+              - 
+                Key: "AKIA47JWRWJMCBSM3E6U"
+                Value: "Acessar e enviar imagem Docker"
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06_humhub"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+    IAMUser2:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "heitorlourenco"
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy2
+              - "arn:aws:iam::aws:policy/IAMUserChangePassword"
+
+    IAMUser3:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "heitorlourenco_CLI"
+            Tags: 
+              - 
+                Key: "AKIA47JWRWJMNY4KNQ46"
+                Value: !Sub "Chave para geracao de ${IAMGroup2} como codigo"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/ReadOnlyAccess"
+
+    IAMUser4:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "John"
+            Groups: 
+              - !Ref IAMGroup
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+              - "arn:aws:iam::aws:policy/IAMUserChangePassword"
+
+    IAMUser5:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "ses-smtp-user.20230903-143340"
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06_humhub"
+              - 
+                Key: "InvokedBy"
+                Value: "SESConsole"
+
+    IAMGroup:
+        Type: "AWS::IAM::Group"
+        Properties:
+            Path: "/"
+            GroupName: "desenvolvimento"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+
+    IAMGroup2:
+        Type: "AWS::IAM::Group"
+        Properties:
+            Path: "/"
+            GroupName: "infraestrutura"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+    IAMRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "ec2_acesso_s3"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ec2.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy
+            Description: "Funcao para que instancias ec2 acessem buckets no S3"
+
+    IAMRole2:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "ecsTaskExecutionRole"
+            AssumeRolePolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+    IAMRole3:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "rds-monitoring-role"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"monitoring.rds.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+
+    IAMServiceLinkedRole:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "elasticfilesystem.amazonaws.com"
+
+    IAMServiceLinkedRole2:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "ecs.application-autoscaling.amazonaws.com"
+
+    IAMServiceLinkedRole3:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "ecs.amazonaws.com"
+            Description: "Role to enable Amazon ECS to manage your cluster."
+
+    IAMServiceLinkedRole4:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "backup.amazonaws.com"
+
+    IAMServiceLinkedRole5:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "rds.amazonaws.com"
+            Description: "Allows Amazon RDS to manage AWS resources on your behalf"
+
+    IAMServiceLinkedRole6:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "globalaccelerator.amazonaws.com"
+            Description: "Allows Global Accelerator to call AWS services on customer's behalf"
+
+    IAMServiceLinkedRole7:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "elasticloadbalancing.amazonaws.com"
+            Description: "Allows ELB to call AWS services on your behalf."
+
+    IAMManagedPolicy:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "S3_Acesso"
+            Path: "/"
+            PolicyDocument: |
+                {
+                	"Version": "2012-10-17",
+                	"Statement": [
+                		{
+                			"Sid": "VisualEditor0",
+                			"Effect": "Allow",
+                			"Action": [
+                				"s3:PutObject",
+                				"s3:GetObject",
+                				"s3:ListAllMyBuckets",
+                				"s3:ListBucket"
+                			],
+                			"Resource": "*"
+                		}
+                	]
+                }
+
+    IAMManagedPolicy2:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "userReadOnlyAccess"
+            Path: "/"
+            PolicyDocument: |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": {
+                        "Effect": "Allow",
+                        "Action": [
+                            "iam:Get*",
+                            "iam:List*",
+                            "iam:Generate*"
+                        ],
+                        "Resource": "*"
+                    }
+                }
+
+    IAMPolicy:
+        Type: "AWS::IAM::Policy"
+        Properties:
+            PolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"ses:SendRawEmail\",\"Resource\":\"*\"}]}"
+            Users: 
+              - "ses-smtp-user.20230903-143340"
+            PolicyName: "AmazonSesSendingAccess"
+
+    IAMInstanceProfile:
+        Type: "AWS::IAM::InstanceProfile"
+        Properties:
+            Path: "/"
+            InstanceProfileName: !Ref IAMRole
+            Roles: 
+              - !Ref IAMRole
+
+    IAMAccessKey:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "aws_cli_humhub"
+
+    IAMAccessKey2:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "heitorlourenco_CLI"
+
+    IAMAccessKey3:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            Status: "Active"
+            UserName: "ses-smtp-user.20230903-143340"
+
+    IAMVirtualMFADevice:
+        Type: "AWS::IAM::VirtualMFADevice"
+        Properties:
+            SerialNumber: "arn:aws:iam::891856990808:mfa/MFA_root"
+            Users: 
+              - "arn:aws:iam::891856990808:root"
+

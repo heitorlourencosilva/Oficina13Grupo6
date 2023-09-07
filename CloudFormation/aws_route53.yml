@@ -1,0 +1,29 @@
+Resources:
+    Route53HostedZone:
+        Type: "AWS::Route53::HostedZone"
+        Properties:
+            Name: !Ref Route53RecordSet
+
+    Route53RecordSet:
+        Type: "AWS::Route53::RecordSet"
+        Properties:
+            Name: !Ref Route53RecordSet2
+            Type: "NS"
+            TTL: 172800
+            ResourceRecords: 
+              - "ns-223.awsdns-27.com."
+              - "ns-1538.awsdns-00.co.uk."
+              - "ns-567.awsdns-06.net."
+              - "ns-1303.awsdns-34.org."
+            HostedZoneId: "Z1048411IND1D7U817GK"
+
+    Route53RecordSet2:
+        Type: "AWS::Route53::RecordSet"
+        Properties:
+            Name: "tecnoct.org."
+            Type: "SOA"
+            TTL: 900
+            ResourceRecords: 
+              - "ns-223.awsdns-27.com. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
+            HostedZoneId: "Z1048411IND1D7U817GK"
+
