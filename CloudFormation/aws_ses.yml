@@ -1,0 +1,60 @@
+Resources:
+    SESEmailIdentity:
+        Type: "AWS::SES::EmailIdentity"
+        Properties:
+            EmailIdentity: "nccj.pro"
+            DkimAttributes: 
+                SigningEnabled: true
+            MailFromAttributes: 
+                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+            ConfigurationSetAttributes: {}
+            FeedbackAttributes: 
+                EmailForwardingEnabled: true
+
+    SESEmailIdentity2:
+        Type: "AWS::SES::EmailIdentity"
+        Properties:
+            EmailIdentity: "luisfelipe.guariento@gmail.com"
+            DkimAttributes: 
+                SigningEnabled: false
+            MailFromAttributes: 
+                MailFromDomain: "luisfelipe.guariento.gmail.com"
+                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+            ConfigurationSetAttributes: {}
+            FeedbackAttributes: 
+                EmailForwardingEnabled: true
+
+    PinpointEmailIdentity:
+        Type: "AWS::PinpointEmail::Identity"
+        Properties:
+            Name: "luisfelipe.guariento@gmail.com"
+            DkimSigningEnabled: false
+            FeedbackForwardingEnabled: true
+            MailFromAttributes: 
+                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+                MailFromDomain: "luisfelipe.guariento.gmail.com"
+
+    PinpointEmailIdentity2:
+        Type: "AWS::PinpointEmail::Identity"
+        Properties:
+            Name: "nccj.pro"
+            DkimSigningEnabled: true
+            FeedbackForwardingEnabled: true
+            MailFromAttributes: 
+                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+
+    XRayGroup:
+        Type: "AWS::XRay::Group"
+        Properties:
+            GroupName: "Default"
+            InsightsConfiguration: 
+                InsightsEnabled: false
+                NotificationsEnabled: false
+
+    AppRunnerObservabilityConfiguration:
+        Type: "AWS::AppRunner::ObservabilityConfiguration"
+        Properties:
+            ObservabilityConfigurationName: "DefaultConfiguration"
+            TraceConfiguration: 
+                Vendor: "AWSXRAY"
+

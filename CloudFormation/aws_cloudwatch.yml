@@ -1,0 +1,65 @@
+Resources:
+    CloudWatchAlarm:
+        Type: "AWS::CloudWatch::Alarm"
+        Properties:
+            AlarmName: !Sub "TargetTracking-service/${ECSCluster}/${ECSService.Name}-AlarmHigh-1229205f-77a0-4284-ab37-ce7825bc1393"
+            AlarmDescription: !Sub "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy arn:aws:autoscaling:${AWS::Region}:891856990808:scalingPolicy:043b8f99-e8be-4519-871a-48ddefa403b1:resource/ecs/service/${ECSCluster}/${ECSService.Name}:policyName/policy_humhub_cpu_utilization:createdBy/0a09cedf-4ec2-410f-b39e-6f3b3e2749c7."
+            ActionsEnabled: true
+            AlarmActions: 
+              - !Sub "arn:aws:autoscaling:${AWS::Region}:891856990808:scalingPolicy:043b8f99-e8be-4519-871a-48ddefa403b1:resource/ecs/service/${ECSCluster}/${ECSService.Name}:policyName/policy_humhub_cpu_utilization:createdBy/0a09cedf-4ec2-410f-b39e-6f3b3e2749c7"
+            MetricName: "CPUUtilization"
+            Namespace: "AWS/ECS"
+            Statistic: "Average"
+            Dimensions: 
+              - 
+                Name: "ClusterName"
+                Value: !Ref ECSCluster
+              - 
+                Name: "ServiceName"
+                Value: !GetAtt ECSService.Name
+            Period: 60
+            Unit: "Percent"
+            EvaluationPeriods: 3
+            Threshold: 50
+            ComparisonOperator: "GreaterThanThreshold"
+
+    CloudWatchAlarm2:
+        Type: "AWS::CloudWatch::Alarm"
+        Properties:
+            AlarmName: !Sub "TargetTracking-service/${ECSCluster}/${ECSService.Name}-AlarmLow-1546069a-ebee-4c0a-9f0d-a00e33a7f29d"
+            AlarmDescription: !Sub "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy arn:aws:autoscaling:${AWS::Region}:891856990808:scalingPolicy:043b8f99-e8be-4519-871a-48ddefa403b1:resource/ecs/service/${ECSCluster}/${ECSService.Name}:policyName/policy_humhub_cpu_utilization:createdBy/0a09cedf-4ec2-410f-b39e-6f3b3e2749c7."
+            ActionsEnabled: true
+            AlarmActions: 
+              - !Sub "arn:aws:autoscaling:${AWS::Region}:891856990808:scalingPolicy:043b8f99-e8be-4519-871a-48ddefa403b1:resource/ecs/service/${ECSCluster}/${ECSService.Name}:policyName/policy_humhub_cpu_utilization:createdBy/0a09cedf-4ec2-410f-b39e-6f3b3e2749c7"
+            MetricName: "CPUUtilization"
+            Namespace: "AWS/ECS"
+            Statistic: "Average"
+            Dimensions: 
+              - 
+                Name: "ClusterName"
+                Value: !Ref ECSCluster
+              - 
+                Name: "ServiceName"
+                Value: !GetAtt ECSService.Name
+            Period: 60
+            Unit: "Percent"
+            EvaluationPeriods: 15
+            Threshold: 45
+            ComparisonOperator: "LessThanThreshold"
+
+    LogsLogGroup:
+        Type: "AWS::Logs::LogGroup"
+        Properties:
+            LogGroupName: !Sub "/aws/ecs/containerinsights/${ECSCluster}/performance"
+            RetentionInDays: 1
+
+    LogsLogGroup2:
+        Type: "AWS::Logs::LogGroup"
+        Properties:
+            LogGroupName: "/ecs/task-definition-fargate-aurora-humhubr"
+
+    LogsLogGroup3:
+        Type: "AWS::Logs::LogGroup"
+        Properties:
+            LogGroupName: "/ecs/task-definition-fargate-humhubr"
+

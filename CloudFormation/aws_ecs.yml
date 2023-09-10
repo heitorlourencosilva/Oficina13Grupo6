@@ -1,0 +1,259 @@
+Resources:
+    ECSCluster:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: "ecs-fargate-humhub-cluster"
+            CapacityProviders: 
+              - "FARGATE"
+              - "FARGATE_SPOT"
+
+    ECSService:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: "service-fargate-humhub-tecnoct"
+            Cluster: !GetAtt ECSCluster.Arn
+            LoadBalancers: 
+              - 
+                TargetGroupArn: !Ref ElasticLoadBalancingV2TargetGroup
+                ContainerName: "ecr-image-humhub"
+                ContainerPort: 80
+            DesiredCount: 2
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition
+            DeploymentConfiguration: 
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker: 
+                    Enable: true
+                    Rollback: true
+            Role: "arn:aws:iam::891856990808:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                    AssignPublicIp: "DISABLED"
+                    SecurityGroups: 
+                      - !Ref EC2SecurityGroup6
+                    Subnets: 
+                      - !Ref EC2Subnet
+                      - !Ref EC2Subnet4
+            HealthCheckGracePeriodSeconds: 0
+            SchedulingStrategy: "REPLICA"
+            DeploymentController: 
+                Type: "ECS"
+            CapacityProviderStrategy: 
+              - 
+                CapacityProvider: "FARGATE"
+                Weight: 1
+                Base: 0
+
+    ECSTaskDefinition:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Environment: 
+                  - 
+                    Name: "HUMHUB_DB_USER"
+                    Value: "root"
+                  - 
+                    Name: "HUMHUB_DB_HOST"
+                    Value: !GetAtt RDSDBInstance.Endpoint.Address
+                  - 
+                    Name: "HUMHUB_DB_NAME"
+                    Value: "db_humhub"
+                  - 
+                    Name: "HUMHUB_AUTO_INSTALL"
+                    Value: "0"
+                  - 
+                    Name: "HUMHUB_ADMIN_PASSWORD"
+                    Value: "admin"
+                  - 
+                    Name: "HUMHUB_DB_PASSWORD"
+                    Value: "humhub2023"
+                  - 
+                    Name: "HUMHUB_ADMIN_EMAIL"
+                    Value: "humhub@humhub.com"
+                  - 
+                    Name: "HUMHUB_ADMIN_LOGIN"
+                    Value: "admin"
+                Essential: true
+                Image: !Sub "891856990808.dkr.ecr.${AWS::Region}.amazonaws.com/projeto_humhub"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/task-definition-fargate-humhubr"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                MountPoints: 
+                  - 
+                    SourceVolume: "config"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/config"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "uploads"
+                    ContainerPath: "/var/www/localhost/htdocs/uploads"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "modules"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/modules"
+                    ReadOnly: false
+                Name: "ecr-image-humhub"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "task-definition-fargate-humhubr"
+            ExecutionRoleArn: !GetAtt IAMRole2.Arn
+            NetworkMode: "awsvpc"
+            Volumes: 
+              - 
+                Name: "config"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem2
+                    RootDirectory: "/"
+              - 
+                Name: "uploads"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem2
+                    RootDirectory: "/"
+              - 
+                Name: "modules"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem2
+                    RootDirectory: "/"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "2048"
+
+    ECSTaskDefinition2:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Environment: 
+                  - 
+                    Name: "HUMHUB_DB_USER"
+                    Value: "humhub"
+                  - 
+                    Name: "HUMHUB_DB_HOST"
+                    Value: "mysql-5-7-43.cizo1euc0jqz.us-east-2.rds.amazonaws.com"
+                  - 
+                    Name: "HUMHUB_DB_NAME"
+                    Value: "humhub"
+                  - 
+                    Name: "HUMHUB_AUTO_INSTALL"
+                    Value: "0"
+                  - 
+                    Name: "HUMHUB_ADMIN_PASSWORD"
+                    Value: "admin"
+                  - 
+                    Name: "HUMHUB_DB_PASSWORD"
+                    Value: "humhub123"
+                  - 
+                    Name: "HUMHUB_ADMIN_EMAIL"
+                    Value: "humhub@humhub.com"
+                  - 
+                    Name: "HUMHUB_ADMIN_LOGIN"
+                    Value: "admin"
+                Essential: true
+                Image: "mriedmann/humhub:stable"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/task-definition-fargate-aurora-humhubr"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                MountPoints: 
+                  - 
+                    SourceVolume: "config"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/config"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "uploads"
+                    ContainerPath: "/var/www/localhost/htdocs/uploads"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "modules"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/modules"
+                    ReadOnly: false
+                Name: "container-humhub-aurora"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "task-definition-fargate-aurora-humhubr"
+            TaskRoleArn: !GetAtt IAMRole2.Arn
+            ExecutionRoleArn: !GetAtt IAMRole2.Arn
+            NetworkMode: "awsvpc"
+            Volumes: 
+              - 
+                Name: "config"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+              - 
+                Name: "uploads"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+              - 
+                Name: "modules"
+                DockerVolumeConfiguration: 
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "2048"
+
+    ApplicationAutoScalingScalableTarget:
+        Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+        Properties:
+            MaxCapacity: 6
+            MinCapacity: 2
+            ResourceId: !Sub "service/${ECSCluster}/${ECSService.Name}"
+            RoleARN: "arn:aws:iam::891856990808:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+            ScalableDimension: "ecs:service:DesiredCount"
+            ServiceNamespace: "ecs"
+            SuspendedState: 
+                DynamicScalingInSuspended: false
+                DynamicScalingOutSuspended: false
+                ScheduledScalingSuspended: false
+
+    ApplicationAutoScalingScalingPolicy:
+        Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+        Properties:
+            PolicyName: "policy_humhub_cpu_utilization"
+            PolicyType: "TargetTrackingScaling"
+            ResourceId: !Sub "service/${ECSCluster}/${ECSService.Name}"
+            ScalableDimension: "ecs:service:DesiredCount"
+            ServiceNamespace: "ecs"
+            TargetTrackingScalingPolicyConfiguration: 
+                DisableScaleIn: false
+                PredefinedMetricSpecification: 
+                    PredefinedMetricType: "ECSServiceAverageCPUUtilization"
+                TargetValue: 50
+
+    ServiceDiscoveryHttpNamespace:
+        Type: "AWS::ServiceDiscovery::HttpNamespace"
+        Properties:
+            Name: !Ref ECSCluster
+
+    ApplicationAutoScalingScalableTarget2:
+        Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+        Properties:
+            MaxCapacity: 6
+            MinCapacity: 2
+            ResourceId: !Sub "service/${ECSCluster}/${ECSService.Name}"
+            RoleARN: "arn:aws:iam::891856990808:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+            ScalableDimension: "ecs:service:DesiredCount"
+            ServiceNamespace: "ecs"
+            SuspendedState: 
+                DynamicScalingInSuspended: false
+                DynamicScalingOutSuspended: false
+                ScheduledScalingSuspended: false
+

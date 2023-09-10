@@ -23,3 +23,23 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: aws_db.yml
+  SubstackCloudWatch:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_cloudwatch.yml
+  SubstackEFS:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_efs.yml
+  SubstackECR:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_ecr.yml
+  SubstackECS:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_ecs.yml
+  SubstackSES:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: aws_ses.yml

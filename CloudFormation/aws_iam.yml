@@ -228,3 +228,19 @@ Resources:
             Users: 
               - "arn:aws:iam::891856990808:root"
 
+    OpsWorksUserProfile:
+        Type: "AWS::OpsWorks::UserProfile"
+        Properties:
+            AllowSelfManagement: false
+            IamUserArn: "arn:aws:iam::891856990808:user/heitorlourenco_CLI"
+            SshUsername: "heitorlourenco_cli"
+
+    ElastiCacheUser:
+        Type: "AWS::ElastiCache::User"
+        Properties:
+            UserId: "default"
+            UserName: "default"
+            Engine: "redis"
+            AccessString: "on ~* +@all"
+            NoPasswordRequired: true
+

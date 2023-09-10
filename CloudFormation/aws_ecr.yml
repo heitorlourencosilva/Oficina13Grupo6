@@ -1,0 +1,8 @@
+Resources:
+    ECRRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: "projeto_humhub"
+            LifecyclePolicy: 
+                RegistryId: "891856990808"
+
