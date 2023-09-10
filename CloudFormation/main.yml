@@ -2,44 +2,49 @@ AWSTemplateFormatVersion: "2010-09-09"
 Metadata:
     Generator: "former2"
 Description: ""
+Parameters:
+  urlParameter:
+    Type: String
+    Default: https://op13g6-cf.s3.amazonaws.com
 Resources:
-  SubstackIAM:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: aws_iam.yml
+  # SubstackIAM:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: aws_iam.yml
   SubstackVPC:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: aws_vpc.yml
-  SubstackRoute53:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: aws_route53.yml
+      TemplateURL: !Sub "${urlParameter}/aws_vpc.yml"
+  # SubstackRoute53:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: aws_route53.yml
   SubstackEC2:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: aws_ec2.yml
-  SubstackRDS:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: aws_db.yml
-  SubstackCloudWatch:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: aws_cloudwatch.yml
+      TemplateURL: !Sub "${urlParameter}/aws_ec2.yml"
+  # SubstackRDS:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: aws_db.yml
+  # SubstackCloudWatch:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: aws_cloudwatch.yml
   SubstackEFS:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: aws_efs.yml
-  SubstackECR:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: aws_ecr.yml
+      TemplateURL: !Sub "${urlParameter}/aws_efs.yml"
+  # SubstackECR:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: aws_ecr.yml
   SubstackECS:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: aws_ecs.yml
-  SubstackSES:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: aws_ses.yml
+      TemplateURL: !Sub "${urlParameter}/aws_ecs.yml"
+  # SubstackSES:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: aws_ses.yml
+  

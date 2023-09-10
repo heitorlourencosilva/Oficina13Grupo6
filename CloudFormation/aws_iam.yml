@@ -1,63 +1,63 @@
 Resources:
-    IAMUser:
-        Type: "AWS::IAM::User"
-        Properties:
-            Path: "/"
-            UserName: "aws_cli_humhub"
-            Tags: 
-              - 
-                Key: "AKIA47JWRWJMCBSM3E6U"
-                Value: "Acessar e enviar imagem Docker"
-              - 
-                Key: "projeto"
-                Value: "projeto13_grupo06_humhub"
-            ManagedPolicyArns: 
-              - "arn:aws:iam::aws:policy/AdministratorAccess"
+    # IAMUser:
+    #     Type: "AWS::IAM::User"
+    #     Properties:
+    #         Path: "/"
+    #         UserName: "aws_cli_humhub"
+    #         Tags: 
+    #           - 
+    #             Key: "AKIA47JWRWJMCBSM3E6U"
+    #             Value: "Acessar e enviar imagem Docker"
+    #           - 
+    #             Key: "projeto"
+    #             Value: "projeto13_grupo06_humhub"
+    #         ManagedPolicyArns: 
+    #           - "arn:aws:iam::aws:policy/AdministratorAccess"
 
-    IAMUser2:
-        Type: "AWS::IAM::User"
-        Properties:
-            Path: "/"
-            UserName: "heitorlourenco"
-            ManagedPolicyArns: 
-              - !Ref IAMManagedPolicy2
-              - "arn:aws:iam::aws:policy/IAMUserChangePassword"
+    # IAMUser2:
+    #     Type: "AWS::IAM::User"
+    #     Properties:
+    #         Path: "/"
+    #         UserName: "heitorlourenco"
+    #         ManagedPolicyArns: 
+    #           - !Ref IAMManagedPolicy2
+    #           - "arn:aws:iam::aws:policy/IAMUserChangePassword"
 
-    IAMUser3:
-        Type: "AWS::IAM::User"
-        Properties:
-            Path: "/"
-            UserName: "heitorlourenco_CLI"
-            Tags: 
-              - 
-                Key: "AKIA47JWRWJMNY4KNQ46"
-                Value: !Sub "Chave para geracao de ${IAMGroup2} como codigo"
-            ManagedPolicyArns: 
-              - "arn:aws:iam::aws:policy/ReadOnlyAccess"
+    # IAMUser3:
+    #     Type: "AWS::IAM::User"
+    #     Properties:
+    #         Path: "/"
+    #         UserName: "heitorlourenco_CLI"
+    #         Tags: 
+    #           - 
+    #             Key: "AKIA47JWRWJMNY4KNQ46"
+    #             Value: !Sub "Chave para geracao de ${IAMGroup2} como codigo"
+    #         ManagedPolicyArns: 
+    #           - "arn:aws:iam::aws:policy/ReadOnlyAccess"
 
-    IAMUser4:
-        Type: "AWS::IAM::User"
-        Properties:
-            Path: "/"
-            UserName: "John"
-            Groups: 
-              - !Ref IAMGroup
-            ManagedPolicyArns: 
-              - "arn:aws:iam::aws:policy/AdministratorAccess"
-              - "arn:aws:iam::aws:policy/IAMUserChangePassword"
+    # IAMUser4:
+    #     Type: "AWS::IAM::User"
+    #     Properties:
+    #         Path: "/"
+    #         UserName: "John"
+    #         Groups: 
+    #           - !Ref IAMGroup
+    #         ManagedPolicyArns: 
+    #           - "arn:aws:iam::aws:policy/AdministratorAccess"
+    #           - "arn:aws:iam::aws:policy/IAMUserChangePassword"
 
-    IAMUser5:
-        Type: "AWS::IAM::User"
-        Properties:
-            Path: "/"
-            UserName: "ses-smtp-user.20230903-143340"
-            Tags: 
-              - 
-                Key: "projeto"
-                Value: "projeto13_grupo06_humhub"
-              - 
-                Key: "InvokedBy"
-                Value: "SESConsole"
+    # IAMUser5:
+    #     Type: "AWS::IAM::User"
+    #     Properties:
+    #         Path: "/"
+    #         UserName: "ses-smtp-user.20230903-143340"
+    #         Tags: 
+    #           - 
+    #             Key: "projeto"
+    #             Value: "projeto13_grupo06_humhub"
+    #           - 
+    #             Key: "InvokedBy"
+    #             Value: "SESConsole"
 
     IAMGroup:
         Type: "AWS::IAM::Group"

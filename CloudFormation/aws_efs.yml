@@ -1,25 +1,27 @@
 Resources:
-    EFSFileSystem:
-        Type: "AWS::EFS::FileSystem"
-        Properties:
-            PerformanceMode: "generalPurpose"
-            Encrypted: true
-            KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/b7ae2764-a87a-4745-bfef-58c19f06fc35"
-            ThroughputMode: "elastic"
-            FileSystemTags: 
-              - 
-                Key: "Name"
-                Value: "EFS-Aurora"
-              - 
-                Key: "aws:elasticfilesystem:default-backup"
-                Value: "enabled"
+    # EFSFileSystem:
+    #     Type: "AWS::EFS::FileSystem"
+    #     Properties:
+    #         PerformanceMode: "generalPurpose"
+    #         Encrypted: true
+    #         KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/b7ae2764-a87a-4745-bfef-58c19f06fc35"
+    #         ThroughputMode: "elastic"
+    #         FileSystemTags: 
+    #           - 
+    #             Key: "Name"
+    #             Value: "EFS-Aurora"
+    #           - 
+    #             Key: "aws:elasticfilesystem:default-backup"
+    #             Value: "enabled"
 
     EFSFileSystem2:
         Type: "AWS::EFS::FileSystem"
         Properties:
             PerformanceMode: "generalPurpose"
             Encrypted: true
-            KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/b7ae2764-a87a-4745-bfef-58c19f06fc35"
+            KmsKeyId: !GetAtt
+              - key
+              - Arn
             ThroughputMode: "elastic"
             FileSystemTags: 
               - 
@@ -29,75 +31,73 @@ Resources:
                 Key: "aws:elasticfilesystem:default-backup"
                 Value: "enabled"
 
-    EFSMountTarget:
-        Type: "AWS::EFS::MountTarget"
-        Properties:
-            FileSystemId: !Ref EFSFileSystem
-            IpAddress: "10.0.4.100"
-            SecurityGroups: 
-              - "sg-00cac7cbb14e0853c"
-            SubnetId: !Ref EC2Subnet4
+    # EFSMountTarget:
+    #     Type: "AWS::EFS::MountTarget"
+    #     Properties:
+    #         FileSystemId: !Ref EFSFileSystem
+    #         IpAddress: "10.0.4.100"
+    #         SecurityGroups: 
+    #           - "sg-00cac7cbb14e0853c"
+    #         SubnetId: !Ref EC2Subnet4
 
-    EFSMountTarget2:
-        Type: "AWS::EFS::MountTarget"
-        Properties:
-            FileSystemId: !Ref EFSFileSystem
-            IpAddress: "10.0.3.42"
-            SecurityGroups: 
-              - "sg-00cac7cbb14e0853c"
-            SubnetId: !Ref EC2Subnet
+    # EFSMountTarget2:
+    #     Type: "AWS::EFS::MountTarget"
+    #     Properties:
+    #         FileSystemId: !Ref EFSFileSystem
+    #         IpAddress: "10.0.3.42"
+    #         SecurityGroups: 
+    #           - "sg-00cac7cbb14e0853c"
+    #         SubnetId: !Ref EC2Subnet
 
     EFSMountTarget3:
         Type: "AWS::EFS::MountTarget"
         Properties:
             FileSystemId: !Ref EFSFileSystem2
-            IpAddress: "10.0.4.110"
             SecurityGroups: 
-              - "sg-00cac7cbb14e0853c"
+              - !Ref EC2SecurityGroupEFS
             SubnetId: !Ref EC2Subnet4
 
     EFSMountTarget4:
         Type: "AWS::EFS::MountTarget"
         Properties:
             FileSystemId: !Ref EFSFileSystem2
-            IpAddress: "10.0.3.250"
             SecurityGroups: 
-              - "sg-00cac7cbb14e0853c"
+              - !Ref EC2SecurityGroupEFS
             SubnetId: !Ref EC2Subnet
 
-    BackupBackupVault:
-        Type: "AWS::Backup::BackupVault"
-        Properties:
-            BackupVaultName: "aws/efs/automatic-backup-vault"
-            EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/a0cfa42e-a750-42d1-b048-6522a6eeba69"
-            AccessPolicy: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Deny\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"backup:DeleteBackupVault\",\"backup:DeleteBackupVaultAccessPolicy\",\"backup:DeleteRecoveryPoint\",\"backup:StartCopyJob\",\"backup:StartRestoreJob\",\"backup:UpdateRecoveryPointLifecycle\"],\"Resource\":\"*\"}]}"
+    # BackupBackupVault:
+    #     Type: "AWS::Backup::BackupVault"
+    #     Properties:
+    #         BackupVaultName: "aws/efs/automatic-backup-vault"
+    #         EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:891856990808:key/a0cfa42e-a750-42d1-b048-6522a6eeba69"
+    #         AccessPolicy: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Deny\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"backup:DeleteBackupVault\",\"backup:DeleteBackupVaultAccessPolicy\",\"backup:DeleteRecoveryPoint\",\"backup:StartCopyJob\",\"backup:StartRestoreJob\",\"backup:UpdateRecoveryPointLifecycle\"],\"Resource\":\"*\"}]}"
 
-    BackupBackupPlan:
-        Type: "AWS::Backup::BackupPlan"
-        Properties:
-            BackupPlan: 
-                BackupPlanName: "aws/efs/automatic-backup-plan"
-                BackupPlanRule: 
-                  - 
-                    CompletionWindowMinutes: 10080
-                    Lifecycle: 
-                        DeleteAfterDays: 35
-                    RuleName: "aws/efs/automatic-backup-rule"
-                    ScheduleExpression: "cron(0 5 ? * * *)"
-                    StartWindowMinutes: 480
-                    TargetBackupVault: !Ref BackupBackupVault
+    # BackupBackupPlan:
+    #     Type: "AWS::Backup::BackupPlan"
+    #     Properties:
+    #         BackupPlan: 
+    #             BackupPlanName: "aws/efs/automatic-backup-plan"
+    #             BackupPlanRule: 
+    #               - 
+    #                 CompletionWindowMinutes: 10080
+    #                 Lifecycle: 
+    #                     DeleteAfterDays: 35
+    #                 RuleName: "aws/efs/automatic-backup-rule"
+    #                 ScheduleExpression: "cron(0 5 ? * * *)"
+    #                 StartWindowMinutes: 480
+    #                 TargetBackupVault: !Ref BackupBackupVault
 
-    BackupBackupSelection:
-        Type: "AWS::Backup::BackupSelection"
-        Properties:
-            BackupPlanId: !Ref BackupBackupPlan
-            BackupSelection: 
-                SelectionName: "aws/efs/automatic-backup-selection"
-                IamRoleArn: "arn:aws:iam::891856990808:role/aws-service-role/backup.amazonaws.com/AWSServiceRoleForBackup"
-                ListOfTags: 
-                  - 
-                    ConditionType: "STRINGEQUALS"
-                    ConditionKey: "aws:elasticfilesystem:default-backup"
-                    ConditionValue: "enabled"
-                Conditions: {}
+    # BackupBackupSelection:
+    #     Type: "AWS::Backup::BackupSelection"
+    #     Properties:
+    #         BackupPlanId: !Ref BackupBackupPlan
+    #         BackupSelection: 
+    #             SelectionName: "aws/efs/automatic-backup-selection"
+    #             IamRoleArn: "arn:aws:iam::891856990808:role/aws-service-role/backup.amazonaws.com/AWSServiceRoleForBackup"
+    #             ListOfTags: 
+    #               - 
+    #                 ConditionType: "STRINGEQUALS"
+    #                 ConditionKey: "aws:elasticfilesystem:default-backup"
+    #                 ConditionValue: "enabled"
+    #             Conditions: {}
 
