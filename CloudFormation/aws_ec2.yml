@@ -355,7 +355,8 @@ Resources:
             SubnetId: !Ref EC2Subnet3
             SourceDestCheck: true
             GroupSet: 
-              - !Sub "${ElasticLoadBalancingV2LoadBalancer.SecurityGroups}"
+              - !Ref EC2SecurityGroup2
+              # - !Sub "${ElasticLoadBalancingV2LoadBalancer.SecurityGroups}"
 
     # EC2NetworkInterface3:
     #     Type: "AWS::EC2::NetworkInterface"
@@ -520,5 +521,5 @@ Resources:
             SubnetId: !Ref EC2Subnet2
             SourceDestCheck: true
             GroupSet: 
-              - !Sub "${ElasticLoadBalancingV2LoadBalancer.SecurityGroups}"
-
+              - !Ref EC2SecurityGroup2
+              # - !Sub "${ElasticLoadBalancingV2LoadBalancer.SecurityGroups}"

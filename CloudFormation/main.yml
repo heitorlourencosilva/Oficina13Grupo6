@@ -7,22 +7,34 @@ Parameters:
     Type: String
     Default: https://op13g6-cf.s3.amazonaws.com
 Resources:
-  # SubstackIAM:
-  #   Type: 'AWS::CloudFormation::Stack'
-  #   Properties:
-  #     TemplateURL: aws_iam.yml
   SubstackVPC:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub "${urlParameter}/aws_vpc.yml"
+  # SubstackEC2:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: !Sub "${urlParameter}/aws_ec2.yml"
+  #   DependsOn: SubstackVPC
+  # SubstackEFS:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: !Sub "${urlParameter}/aws_efs.yml"
+  #   DependsOn: SubstackEC2
+  # SubstackECS:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: !Sub "${urlParameter}/aws_ecs.yml"
+  #   DependsOn: SubstackEFS
+# Não Feito    
+  # SubstackIAM:
+  #   Type: 'AWS::CloudFormation::Stack'
+  #   Properties:
+  #     TemplateURL: aws_iam.yml
   # SubstackRoute53:
   #   Type: 'AWS::CloudFormation::Stack'
   #   Properties:
   #     TemplateURL: aws_route53.yml
-  SubstackEC2:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: !Sub "${urlParameter}/aws_ec2.yml"
   # SubstackRDS:
   #   Type: 'AWS::CloudFormation::Stack'
   #   Properties:
@@ -31,18 +43,10 @@ Resources:
   #   Type: 'AWS::CloudFormation::Stack'
   #   Properties:
   #     TemplateURL: aws_cloudwatch.yml
-  SubstackEFS:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: !Sub "${urlParameter}/aws_efs.yml"
   # SubstackECR:
   #   Type: 'AWS::CloudFormation::Stack'
   #   Properties:
   #     TemplateURL: aws_ecr.yml
-  SubstackECS:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: !Sub "${urlParameter}/aws_ecs.yml"
   # SubstackSES:
   #   Type: 'AWS::CloudFormation::Stack'
   #   Properties:
