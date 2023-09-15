@@ -1,0 +1,270 @@
+Parameters:
+  myVpcId:
+    Type: String
+    Default: vpc-0cfb00391544bf770
+  myVpcCidrBlock:
+    Type: String
+    Default: 10.0.0.0/16
+  subnetPrivada1:
+    Type: String
+    Default: subnet-0aab8ce5d654789a1
+  subnetPrivada2:
+    Type: String
+    Default: subnet-0e78fef974660bc82
+  efsId:
+    Type: String
+    Default: fs-0f4ee63dcfb406daa
+  rdsEndpoint:
+    Type: String
+    Default: tecnoct-instance-1.capjxhhadkdc.sa-east-1.rds.amazonaws.com
+  tgElb:
+    Type: String
+    Default: arn:aws:elasticloadbalancing:sa-east-1:599683495167:targetgroup/gd-humhub-tecnoct/844456a495930d04
+Resources:
+# TODO EFS
+    EC2SecurityGroupEFS:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "xxx"
+            GroupName: "sg_efs_humhub"
+            Tags: 
+              - 
+                Key: "projeto"
+                Value: "projeto13_grupo06-humhub"
+            VpcId: !Sub "${myVpcId}"
+            SecurityGroupIngress: 
+              - 
+                CidrIp: !Sub "${myVpcCidrBlock}"
+                FromPort: 2049
+                IpProtocol: "tcp"
+                ToPort: 2049
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+
+    EFSMountTarget3:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Sub "${efsId}"
+            SecurityGroups: 
+              - !Ref EC2SecurityGroupEFS
+            SubnetId: !Sub "${subnetPrivada2}"
+
+    EFSMountTarget4:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Sub "${efsId}"
+            SecurityGroups: 
+              - !Ref EC2SecurityGroupEFS
+            SubnetId: !Sub "${subnetPrivada1}"
+
+# TODO ECS
+    EC2SecurityGroup6:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Security Group para tasks do humhub"
+            GroupName: "sg_web_humhub"
+            VpcId: !Sub "${myVpcId}"
+            SecurityGroupIngress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIpv6: "::/0"
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 443
+                IpProtocol: "tcp"
+                ToPort: 443
+              - 
+                CidrIpv6: "::/0"
+                FromPort: 443
+                IpProtocol: "tcp"
+                ToPort: 443
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+
+    IAMRole2:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "ecsTaskExecutionRole-0001"
+            AssumeRolePolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+    ECSCluster:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: "ecs-fargate-humhub-cluster"
+            CapacityProviders: 
+              - "FARGATE"
+              - "FARGATE_SPOT"
+
+    ECSService:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: "service-fargate-humhub-tecnoct"
+            Cluster: !GetAtt ECSCluster.Arn
+            LoadBalancers: 
+              - 
+                TargetGroupArn: !Sub "${tgElb}"
+                ContainerName: "ecr-image-humhub"
+                ContainerPort: 80
+            DesiredCount: 2
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition
+            DeploymentConfiguration: 
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker: 
+                    Enable: true
+                    Rollback: true
+            Role: "arn:aws:iam::891856990808:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                    AssignPublicIp: "DISABLED"
+                    SecurityGroups: 
+                      - !Ref EC2SecurityGroup6
+                    Subnets: 
+                      - !Sub "${subnetPrivada1}"
+                      - !Sub "${subnetPrivada2}"
+            HealthCheckGracePeriodSeconds: 0
+            SchedulingStrategy: "REPLICA"
+            DeploymentController: 
+                Type: "ECS"
+            CapacityProviderStrategy: 
+              - 
+                CapacityProvider: "FARGATE"
+                Weight: 1
+                Base: 0
+
+    ECSTaskDefinition:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Environment: 
+                  - 
+                    Name: "HUMHUB_DB_USER"
+                    Value: "root"
+                  - 
+                    Name: "HUMHUB_DB_HOST"
+                    Value: !Sub "${rdsEndpoint}"
+                  - 
+                    Name: "HUMHUB_DB_NAME"
+                    Value: "db_humhub"
+                  - 
+                    Name: "HUMHUB_AUTO_INSTALL"
+                    Value: "0"
+                  - 
+                    Name: "HUMHUB_ADMIN_PASSWORD"
+                    Value: "admin"
+                  - 
+                    Name: "HUMHUB_DB_PASSWORD"
+                    Value: "humhub2023"
+                  - 
+                    Name: "HUMHUB_ADMIN_EMAIL"
+                    Value: "humhub@humhub.com"
+                  - 
+                    Name: "HUMHUB_ADMIN_LOGIN"
+                    Value: "admin"
+                Essential: true
+                Image: "mriedmann/humhub:stable"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/task-definition-fargate-humhubr"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                # MountPoints: 
+                #   - 
+                #     SourceVolume: "config"
+                #     ContainerPath: "/var/www/localhost/htdocs/protected/config"
+                #     ReadOnly: false
+                #   - 
+                #     SourceVolume: "uploads"
+                #     ContainerPath: "/var/www/localhost/htdocs/uploads"
+                #     ReadOnly: false
+                #   - 
+                #     SourceVolume: "modules"
+                #     ContainerPath: "/var/www/localhost/htdocs/protected/modules"
+                #     ReadOnly: false
+                Name: "ecr-image-humhub"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "task-definition-fargate-humhubr"
+            ExecutionRoleArn: !GetAtt IAMRole2.Arn
+            NetworkMode: "awsvpc"
+            # Volumes: 
+            #   - 
+            #     Name: "config"
+            #     DockerVolumeConfiguration: 
+            #         FileSystemId: !Sub "${efsId}"
+            #         RootDirectory: "/"
+            #   - 
+            #     Name: "uploads"
+            #     DockerVolumeConfiguration: 
+            #         FileSystemId: !Sub "${efsId}"
+            #         RootDirectory: "/"
+            #   - 
+            #     Name: "modules"
+            #     DockerVolumeConfiguration: 
+            #         FileSystemId: !Sub "${efsId}"
+            #         RootDirectory: "/"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "2048"
+
+    ApplicationAutoScalingScalableTarget:
+        Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+        Properties:
+            MaxCapacity: 6
+            MinCapacity: 2
+            ResourceId: !Sub "service/${ECSCluster}/${ECSService.Name}"
+            RoleARN: "arn:aws:iam::891856990808:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+            ScalableDimension: "ecs:service:DesiredCount"
+            ServiceNamespace: "ecs"
+            SuspendedState: 
+                DynamicScalingInSuspended: false
+                DynamicScalingOutSuspended: false
+                ScheduledScalingSuspended: false
+
+    ApplicationAutoScalingScalingPolicy:
+        Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+        Properties:
+            PolicyName: "policy_humhub_cpu_utilization"
+            PolicyType: "TargetTrackingScaling"
+            ResourceId: !Sub "service/${ECSCluster}/${ECSService.Name}"
+            ScalableDimension: "ecs:service:DesiredCount"
+            ServiceNamespace: "ecs"
+            TargetTrackingScalingPolicyConfiguration: 
+                DisableScaleIn: false
+                PredefinedMetricSpecification: 
+                    PredefinedMetricType: "ECSServiceAverageCPUUtilization"
+                TargetValue: 50
+
+    ServiceDiscoveryHttpNamespace:
+        Type: "AWS::ServiceDiscovery::HttpNamespace"
+        Properties:
+            Name: !Ref ECSCluster
