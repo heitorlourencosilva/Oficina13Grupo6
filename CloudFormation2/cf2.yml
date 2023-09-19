@@ -1,0 +1,555 @@
+Parameters:
+  myVpcCidrBlock:
+    Type: String
+    Default: 10.0
+  tagName:
+    Type: String
+    Default: _TecnoCT
+Resources:
+# VPC
+    VPC:
+        Type: "AWS::EC2::VPC"
+        Properties:
+            CidrBlock: !Sub "${myVpcCidrBlock}.0.0/16"
+            EnableDnsSupport: true
+            EnableDnsHostnames: true
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "VPC${tagName}"
+
+    VPCCidrBlock:
+        Type: "AWS::EC2::VPCCidrBlock"
+        Properties:
+            VpcId: !Ref VPC
+            AmazonProvidedIpv6CidrBlock: true
+
+    SubnetPub1:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet1.AvailabilityZone
+            CidrBlock: !Sub "${myVpcCidrBlock}.0.0/20"
+            VpcId: !Ref VPC
+            MapPublicIpOnLaunch: true
+            Tags:
+              - 
+                Key: "Name"
+                Value: !Sub "Subnet_pub1${tagName}"
+
+    SubnetPub2:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet2.AvailabilityZone
+            CidrBlock: !Sub "${myVpcCidrBlock}.20.0/20"
+            VpcId: !Ref VPC
+            MapPublicIpOnLaunch: true
+            Tags:
+              - 
+                Key: "Name"
+                Value: !Sub "Subnet_pub2${tagName}"
+
+    SubnetPub3:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet3.AvailabilityZone
+            CidrBlock: !Sub "${myVpcCidrBlock}.40.0/20"
+            VpcId: !Ref VPC
+            MapPublicIpOnLaunch: true
+            Tags:
+              - 
+                Key: "Name"
+                Value: !Sub "Subnet_pub3${tagName}"
+
+    SubnetPriv1:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet1.AvailabilityZone
+            CidrBlock: !Sub "${myVpcCidrBlock}.100.0/20"
+            VpcId: !Ref VPC
+            MapPublicIpOnLaunch: false
+            Tags:
+              - 
+                Key: "Name"
+                Value: !Sub "Subnet_priv1${tagName}"
+
+    SubnetPriv2:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet2.AvailabilityZone
+            CidrBlock: !Sub "${myVpcCidrBlock}.120.0/20"
+            VpcId: !Ref VPC
+            MapPublicIpOnLaunch: false
+            Tags:
+              - 
+                Key: "Name"
+                Value: !Sub "Subnet_priv2${tagName}"
+
+    SubnetPriv3:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet3.AvailabilityZone
+            CidrBlock: !Sub "${myVpcCidrBlock}.140.0/20"
+            VpcId: !Ref VPC
+            MapPublicIpOnLaunch: false
+            Tags:
+              - 
+                Key: "Name"
+                Value: !Sub "Subnet_priv3${tagName}"
+                
+    DHCPOptions:
+        Type: "AWS::EC2::DHCPOptions"
+        Properties:
+            DomainName: "compute.internal"
+
+    VPCDHCPOptionsAssociation:
+        Type: "AWS::EC2::VPCDHCPOptionsAssociation"
+        Properties:
+            DhcpOptionsId: !Ref DHCPOptions
+            VpcId: !Ref VPC
+
+    InternetGateway:
+        Type: "AWS::EC2::InternetGateway"
+        Properties:
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "internet_gateway${tagName}"
+
+    VPCGatewayAttachment:
+        Type: "AWS::EC2::VPCGatewayAttachment"
+        Properties:
+            InternetGatewayId: !Ref InternetGateway
+            VpcId: !Ref VPC
+
+    RouteTable:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "route_table_publica${tagName}"
+
+    Route:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            GatewayId: !Ref InternetGateway
+            RouteTableId: !Ref RouteTable
+
+    Route2:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationIpv6CidrBlock: "::/0"
+            GatewayId: !Ref InternetGateway
+            RouteTableId: !Ref RouteTable
+
+    SubnetRouteTableAssociation:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref RouteTable
+            SubnetId: !Ref SubnetPub1
+
+    SubnetRouteTableAssociation2:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref RouteTable
+            SubnetId: !Ref SubnetPub2
+
+    SubnetRouteTableAssociation3:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref RouteTable
+            SubnetId: !Ref SubnetPub3
+
+    SecurityGroup:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupName: "security_group_http_https"
+            VpcId: !Ref VPC
+            SecurityGroupIngress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIpv6: "::/0"
+                FromPort: 80
+                IpProtocol: "tcp"
+                ToPort: 80
+              - 
+                CidrIp: "0.0.0.0/0"
+                FromPort: 443
+                IpProtocol: "tcp"
+                ToPort: 443
+              - 
+                CidrIpv6: "::/0"
+                FromPort: 443
+                IpProtocol: "tcp"
+                ToPort: 443
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "security_group_http_https${tagName}"
+
+    SecurityGroupEFS:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupName: "security_group_efs"
+            VpcId: !Ref VPC
+            SecurityGroupIngress: 
+              - 
+                SourceSecurityGroupId: !Ref SecurityGroup
+                SourceSecurityGroupOwnerId: !Ref AWS::AccountId
+                FromPort: 2049
+                IpProtocol: "tcp"
+                ToPort: 2049
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "security_group_efs${tagName}"
+
+    SecurityGroupRDS:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupName: "security_group_rds"
+            VpcId: !Ref VPC
+            SecurityGroupIngress: 
+              - 
+                SourceSecurityGroupId: !Ref SecurityGroup
+                SourceSecurityGroupOwnerId: !Ref AWS::AccountId
+                FromPort: !GetAtt RDSDBCluster.Endpoint.Port
+                IpProtocol: "tcp"
+                ToPort: !GetAtt RDSDBCluster.Endpoint.Port
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+              - 
+                CidrIpv6: "::/0"
+                IpProtocol: "-1"
+              - 
+                Key: "Name"
+                Value: !Sub "security_group_rds${tagName}"
+
+# RDS
+    RDSDBSubnetGroup:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupName: "subnet_group_rds"
+            SubnetIds: 
+              - !Ref SubnetPriv1
+              - !Ref SubnetPriv2
+              - !Ref SubnetPriv3
+
+    RDSDBCluster:
+        Type: "AWS::RDS::DBCluster"
+        Properties:
+            AvailabilityZones: 
+              - !GetAtt EC2Subnet1.AvailabilityZone
+              - !GetAtt EC2Subnet2.AvailabilityZone
+              - !GetAtt EC2Subnet3.AvailabilityZone
+            BackupRetentionPeriod: 30
+            DatabaseName: "db_humhub"
+            DBClusterIdentifier: "rds_cluster${tagName}"
+            DBClusterParameterGroupName: "default.aurora-mysql8.0"
+            DBSubnetGroupName: !Ref RDSDBSubnetGroup
+            Engine: "aurora-mysql"
+            Port: !GetAtt RDSDBInstance.Endpoint.Port
+            MasterUsername: "root"
+            MasterUserPassword: "humhub2023"
+            PreferredBackupWindow: "07:52-08:22"
+            PreferredMaintenanceWindow: "sun:23:00-mon:02:00"
+            VpcSecurityGroupIds: 
+              - !Ref SecurityGroupRDS
+            StorageEncrypted: true
+            EngineVersion: "8.0.mysql_aurora.3.02.2"
+            EnableIAMDatabaseAuthentication: false
+            EngineMode: "provisioned"
+            DeletionProtection: true
+            EnableHttpEndpoint: false
+
+    RDSDBInstance:
+        Type: "AWS::RDS::DBInstance"
+        Properties:
+            DBInstanceIdentifier: "rds_instance_${EC2Subnet1.AvailabilityZone}${tagName}"
+            DBInstanceClass: "db.serverless"
+            Engine: "aurora-mysql"
+            DBName: "db_humhub"
+            PreferredBackupWindow: "07:52-08:22"
+            AvailabilityZone: !GetAtt EC2Subnet1.AvailabilityZone
+            PreferredMaintenanceWindow: "sat:10:09-sat:10:39"
+            MultiAZ: false
+            EngineVersion: "8.0.mysql_aurora.3.02.2"
+            AutoMinorVersionUpgrade: true
+            LicenseModel: "general-public-license"
+            PubliclyAccessible: true
+            StorageType: "aurora"
+            Port: 3306
+            DBClusterIdentifier: !Ref RDSDBCluster
+            MonitoringInterval: 60
+            PromotionTier: 0
+            EnablePerformanceInsights: true
+            PerformanceInsightsRetentionPeriod: 7
+            DBSubnetGroupName: !Ref RDSDBSubnetGroup
+            VPCSecurityGroups: 
+              - !Ref SecurityGroupRDS
+            DBParameterGroupName: "default.aurora-mysql8.0"
+            OptionGroupName: "default:aurora-mysql-8-0"
+            MonitoringRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/rds-monitoring-role"
+            CACertificateIdentifier: "rds-ca-2019"
+
+# EFS
+    EFS:
+        Type: "AWS::EFS::FileSystem"
+        Properties:
+            Encrypted: true
+            FileSystemTags: 
+              - 
+                Key: "Name"
+                Value: !Sub "efs${tagName}"
+                
+    EFSMountTarget:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Ref EFS
+            SecurityGroups: 
+              - !Ref SecurityGroupEFS
+            SubnetId: !Ref SubnetPriv1
+
+    EFSMountTarget2:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Ref EFS
+            SecurityGroups: 
+              - !Ref SecurityGroupEFS
+            SubnetId: !Ref SubnetPriv2
+                
+    EFSMountTarget3:
+        Type: "AWS::EFS::MountTarget"
+        Properties:
+            FileSystemId: !Ref EFS
+            SecurityGroups: 
+              - !Ref SecurityGroupEFS
+            SubnetId: !Ref SubnetPriv3
+
+    EFSAccessPoint:
+        Type: "AWS::EFS::AccessPoint"
+        Properties:
+            FileSystemId: !Ref EFSFileSystem
+            AccessPointTags: 
+              - 
+                Key: "Name"
+                Value: "config"
+            PosixUser: 
+                Uid: 1000
+                Gid: 1000
+            RootDirectory: 
+                Path: "/config"
+                CreationInfo: 
+                    OwnerUid: 1000
+                    OwnerGid: 1000
+                    Permissions: "755"
+
+    EFSAccessPoint2:
+        Type: "AWS::EFS::AccessPoint"
+        Properties:
+            FileSystemId: !Ref EFSFileSystem
+            AccessPointTags: 
+              - 
+                Key: "Name"
+                Value: "uploads"
+            PosixUser: 
+                Uid: 1000
+                Gid: 1000
+            RootDirectory: 
+                Path: "/uploads"
+                CreationInfo: 
+                    OwnerUid: 1000
+                    OwnerGid: 1000
+                    Permissions: "755"
+
+    EFSAccessPoint3:
+        Type: "AWS::EFS::AccessPoint"
+        Properties:
+            FileSystemId: !Ref EFSFileSystem
+            AccessPointTags: 
+              - 
+                Key: "Name"
+                Value: "modules"
+            PosixUser: 
+                Uid: 1000
+                Gid: 1000
+            RootDirectory: 
+                Path: "/modules"
+                CreationInfo: 
+                    OwnerUid: 1000
+                    OwnerGid: 1000
+                    Permissions: "755"
+
+    IAMRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: !Sub "ecsTaskExecutionRole${tagName}"
+            AssumeRolePolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+    ECSCluster:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: !Sub "ecs_cluster${tagName}"
+            CapacityProviders: 
+              - "FARGATE"
+              - "FARGATE_SPOT"
+
+    ECSService:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: !Sub "ecs_service${tagName}"
+            Cluster: !GetAtt ECSCluster.Arn
+            # LoadBalancers: 
+            #   - 
+            #     TargetGroupArn: !Sub "${tgElb}"
+            #     ContainerName: "ecr-image-humhub"
+            #     ContainerPort: 80
+            DesiredCount: 2
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition
+            DeploymentConfiguration: 
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker: 
+                    Enable: true
+                    Rollback: true
+            # Role: "arn:aws:iam::891856990808:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                    AssignPublicIp: "DISABLED"
+                    SecurityGroups: 
+                      - !Ref SecurityGroup
+                    Subnets: 
+                      - !Ref SubnetPriv1
+                      - !Ref SubnetPriv2
+                      - !Ref SubnetPriv3
+            HealthCheckGracePeriodSeconds: 0
+            SchedulingStrategy: "REPLICA"
+            DeploymentController: 
+                Type: "ECS"
+            CapacityProviderStrategy: 
+              - 
+                CapacityProvider: "FARGATE"
+                Weight: 1
+                Base: 0
+
+    ECSTaskDefinition:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Environment: 
+                  - 
+                    Name: "HUMHUB_DB_USER"
+                    Value: "root"
+                  - 
+                    Name: "HUMHUB_DB_HOST"
+                    Value: !GetAtt RDSDBCluster.Endpoint.Address
+                  - 
+                    Name: "HUMHUB_DB_NAME"
+                    Value: "db_humhub"
+                  - 
+                    Name: "HUMHUB_AUTO_INSTALL"
+                    Value: "0"
+                  - 
+                    Name: "HUMHUB_ADMIN_PASSWORD"
+                    Value: "admin"
+                  - 
+                    Name: "HUMHUB_DB_PASSWORD"
+                    Value: "humhub2023"
+                  - 
+                    Name: "HUMHUB_ADMIN_EMAIL"
+                    Value: "humhub@humhub.com"
+                  - 
+                    Name: "HUMHUB_ADMIN_LOGIN"
+                    Value: "admin"
+                Essential: true
+                Image: "mriedmann/humhub:stable"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/task-definition-fargate-humhubr"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                MountPoints: 
+                  - 
+                    SourceVolume: "config"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/config"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "uploads"
+                    ContainerPath: "/var/www/localhost/htdocs/uploads"
+                    ReadOnly: false
+                  - 
+                    SourceVolume: "modules"
+                    ContainerPath: "/var/www/localhost/htdocs/protected/modules"
+                    ReadOnly: false
+                Name: "ecr-image-humhub"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "task-definition-fargate-humhubr"
+            TaskRoleArn: !GetAtt IAMRole.Arn
+            ExecutionRoleArn: !GetAtt IAMRole.Arn
+            NetworkMode: "awsvpc"
+            Volumes: 
+              - 
+                Name: "config"
+                DockerVolumeConfiguration: 
+                    AuthorizationConfig: 
+                        AccessPointId: !GetAtt EFSAccessPoint.AccessPointId
+                        IAM: "DISABLED"
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+                    TransitEncryption: "ENABLED"
+              - 
+                Name: "uploads"
+                DockerVolumeConfiguration: 
+                    AuthorizationConfig: 
+                        AccessPointId: !GetAtt EFSAccessPoint2.AccessPointId
+                        IAM: "DISABLED"
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+                    TransitEncryption: "ENABLED"
+              - 
+                Name: "modules"
+                DockerVolumeConfiguration: 
+                    AuthorizationConfig: 
+                        AccessPointId: !GetAtt EFSAccessPoint3.AccessPointId
+                        IAM: "DISABLED"
+                    FilesystemId: !Ref EFSFileSystem
+                    RootDirectory: "/"
+                    TransitEncryption: "ENABLED"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "2048"
