@@ -27,7 +27,7 @@ Resources:
     SubnetPub1:
         Type: "AWS::EC2::Subnet"
         Properties:
-            AvailabilityZone: !GetAtt EC2Subnet1.AvailabilityZone
+            AvailabilityZone: !Sub "${AWS::Region}a"
             CidrBlock: !Sub "${myVpcCidrBlock}.0.0/20"
             VpcId: !Ref VPC
             MapPublicIpOnLaunch: true
@@ -39,7 +39,7 @@ Resources:
     SubnetPub2:
         Type: "AWS::EC2::Subnet"
         Properties:
-            AvailabilityZone: !GetAtt EC2Subnet2.AvailabilityZone
+            AvailabilityZone: !Sub "${AWS::Region}b"
             CidrBlock: !Sub "${myVpcCidrBlock}.20.0/20"
             VpcId: !Ref VPC
             MapPublicIpOnLaunch: true
@@ -51,7 +51,7 @@ Resources:
     SubnetPub3:
         Type: "AWS::EC2::Subnet"
         Properties:
-            AvailabilityZone: !GetAtt EC2Subnet3.AvailabilityZone
+            AvailabilityZone: !Sub "${AWS::Region}c"
             CidrBlock: !Sub "${myVpcCidrBlock}.40.0/20"
             VpcId: !Ref VPC
             MapPublicIpOnLaunch: true
@@ -63,7 +63,7 @@ Resources:
     SubnetPriv1:
         Type: "AWS::EC2::Subnet"
         Properties:
-            AvailabilityZone: !GetAtt EC2Subnet1.AvailabilityZone
+            AvailabilityZone: !GetAtt SubnetPub1.AvailabilityZone
             CidrBlock: !Sub "${myVpcCidrBlock}.100.0/20"
             VpcId: !Ref VPC
             MapPublicIpOnLaunch: false
@@ -75,7 +75,7 @@ Resources:
     SubnetPriv2:
         Type: "AWS::EC2::Subnet"
         Properties:
-            AvailabilityZone: !GetAtt EC2Subnet2.AvailabilityZone
+            AvailabilityZone: !GetAtt SubnetPub2.AvailabilityZone
             CidrBlock: !Sub "${myVpcCidrBlock}.120.0/20"
             VpcId: !Ref VPC
             MapPublicIpOnLaunch: false
@@ -87,7 +87,7 @@ Resources:
     SubnetPriv3:
         Type: "AWS::EC2::Subnet"
         Properties:
-            AvailabilityZone: !GetAtt EC2Subnet3.AvailabilityZone
+            AvailabilityZone: !GetAtt SubnetPub3.AvailabilityZone
             CidrBlock: !Sub "${myVpcCidrBlock}.140.0/20"
             VpcId: !Ref VPC
             MapPublicIpOnLaunch: false
@@ -165,6 +165,7 @@ Resources:
     SecurityGroup:
         Type: "AWS::EC2::SecurityGroup"
         Properties:
+            GroupDescription: "security_group_http_https"
             GroupName: "security_group_http_https"
             VpcId: !Ref VPC
             SecurityGroupIngress: 
@@ -203,6 +204,7 @@ Resources:
     SecurityGroupEFS:
         Type: "AWS::EC2::SecurityGroup"
         Properties:
+            GroupDescription: "security_group_efs"
             GroupName: "security_group_efs"
             VpcId: !Ref VPC
             SecurityGroupIngress: 
@@ -227,15 +229,16 @@ Resources:
     SecurityGroupRDS:
         Type: "AWS::EC2::SecurityGroup"
         Properties:
+            GroupDescription: "security_group_rds"
             GroupName: "security_group_rds"
             VpcId: !Ref VPC
             SecurityGroupIngress: 
               - 
                 SourceSecurityGroupId: !Ref SecurityGroup
                 SourceSecurityGroupOwnerId: !Ref AWS::AccountId
-                FromPort: !GetAtt RDSDBCluster.Endpoint.Port
+                FromPort: 3306
                 IpProtocol: "tcp"
-                ToPort: !GetAtt RDSDBCluster.Endpoint.Port
+                ToPort: 3306
             SecurityGroupEgress: 
               - 
                 CidrIp: "0.0.0.0/0"
@@ -243,9 +246,122 @@ Resources:
               - 
                 CidrIpv6: "::/0"
                 IpProtocol: "-1"
+            Tags: 
               - 
                 Key: "Name"
                 Value: !Sub "security_group_rds${tagName}"
+
+# NATGateway
+    NatGatewayEIP:
+        Type: "AWS::EC2::EIP"
+        Properties:
+            Domain: "vpc"
+
+    NatGatewayEIP2:
+        Type: "AWS::EC2::EIP"
+        Properties:
+            Domain: "vpc"
+
+    NatGatewayEIP3:
+        Type: "AWS::EC2::EIP"
+        Properties:
+            Domain: "vpc"
+
+    NatGateway:
+        Type: "AWS::EC2::NatGateway"
+        Properties:
+            SubnetId: !Ref SubnetPub1
+            AllocationId: !GetAtt NatGatewayEIP.AllocationId
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "nat-gateway-pub1${tagName}"
+
+    NatGateway2:
+        Type: "AWS::EC2::NatGateway"
+        Properties:
+            SubnetId: !Ref SubnetPub2
+            AllocationId: !GetAtt NatGatewayEIP2.AllocationId
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "nat-gateway-pub2${tagName}"
+
+    NatGateway3:
+        Type: "AWS::EC2::NatGateway"
+        Properties:
+            SubnetId: !Ref SubnetPub3
+            AllocationId: !GetAtt NatGatewayEIP3.AllocationId
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "nat-gateway-pub3${tagName}"
+
+    NatGatewayRouteTablePriv1:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "route_table_privada1_nat_gateway${tagName}"
+
+    NatGatewayRouteTablePriv2:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "route_table_privada2_nat_gateway${tagName}"
+
+    NatGatewayRouteTablePriv3:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "route_table_privada3_nat_gateway${tagName}"
+
+    NatGatewayRoute:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            NatGatewayId: !Ref NatGateway
+            RouteTableId: !Ref NatGatewayRouteTablePriv1
+
+    NatGatewayRoute2:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            NatGatewayId: !Ref NatGateway2
+            RouteTableId: !Ref NatGatewayRouteTablePriv2
+
+    NatGatewayRoute3:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            NatGatewayId: !Ref NatGateway3
+            RouteTableId: !Ref NatGatewayRouteTablePriv3
+
+    NatGatewaySubnetRouteTableAssociation:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref NatGatewayRouteTablePriv1
+            SubnetId: !Ref SubnetPriv1
+
+    NatGatewaySubnetRouteTableAssociation2:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref NatGatewayRouteTablePriv2
+            SubnetId: !Ref SubnetPriv2
+
+    NatGatewaySubnetRouteTableAssociation3:
+        Type: "AWS::EC2::SubnetRouteTableAssociation"
+        Properties:
+            RouteTableId: !Ref NatGatewayRouteTablePriv3
+            SubnetId: !Ref SubnetPriv3
 
 # RDS
     RDSDBSubnetGroup:
@@ -261,16 +377,16 @@ Resources:
         Type: "AWS::RDS::DBCluster"
         Properties:
             AvailabilityZones: 
-              - !GetAtt EC2Subnet1.AvailabilityZone
-              - !GetAtt EC2Subnet2.AvailabilityZone
-              - !GetAtt EC2Subnet3.AvailabilityZone
+              - !GetAtt SubnetPub1.AvailabilityZone
+              - !GetAtt SubnetPub2.AvailabilityZone
+              - !GetAtt SubnetPub3.AvailabilityZone
             BackupRetentionPeriod: 30
             DatabaseName: "db_humhub"
             DBClusterIdentifier: "rds_cluster${tagName}"
             DBClusterParameterGroupName: "default.aurora-mysql8.0"
             DBSubnetGroupName: !Ref RDSDBSubnetGroup
             Engine: "aurora-mysql"
-            Port: !GetAtt RDSDBInstance.Endpoint.Port
+            Port: 3306
             MasterUsername: "root"
             MasterUserPassword: "humhub2023"
             PreferredBackupWindow: "07:52-08:22"
@@ -287,12 +403,12 @@ Resources:
     RDSDBInstance:
         Type: "AWS::RDS::DBInstance"
         Properties:
-            DBInstanceIdentifier: "rds_instance_${EC2Subnet1.AvailabilityZone}${tagName}"
+            DBInstanceIdentifier: "rds_instance_${SubnetPub1.AvailabilityZone}${tagName}"
             DBInstanceClass: "db.serverless"
             Engine: "aurora-mysql"
             DBName: "db_humhub"
             PreferredBackupWindow: "07:52-08:22"
-            AvailabilityZone: !GetAtt EC2Subnet1.AvailabilityZone
+            AvailabilityZone: !GetAtt SubnetPub1.AvailabilityZone
             PreferredMaintenanceWindow: "sat:10:09-sat:10:39"
             MultiAZ: false
             EngineVersion: "8.0.mysql_aurora.3.02.2"
@@ -351,7 +467,7 @@ Resources:
     EFSAccessPoint:
         Type: "AWS::EFS::AccessPoint"
         Properties:
-            FileSystemId: !Ref EFSFileSystem
+            FileSystemId: !Ref EFS
             AccessPointTags: 
               - 
                 Key: "Name"
@@ -369,7 +485,7 @@ Resources:
     EFSAccessPoint2:
         Type: "AWS::EFS::AccessPoint"
         Properties:
-            FileSystemId: !Ref EFSFileSystem
+            FileSystemId: !Ref EFS
             AccessPointTags: 
               - 
                 Key: "Name"
@@ -387,7 +503,7 @@ Resources:
     EFSAccessPoint3:
         Type: "AWS::EFS::AccessPoint"
         Properties:
-            FileSystemId: !Ref EFSFileSystem
+            FileSystemId: !Ref EFS
             AccessPointTags: 
               - 
                 Key: "Name"
@@ -528,7 +644,7 @@ Resources:
                     AuthorizationConfig: 
                         AccessPointId: !GetAtt EFSAccessPoint.AccessPointId
                         IAM: "DISABLED"
-                    FilesystemId: !Ref EFSFileSystem
+                    FilesystemId: !Ref EFS
                     RootDirectory: "/"
                     TransitEncryption: "ENABLED"
               - 
@@ -537,7 +653,7 @@ Resources:
                     AuthorizationConfig: 
                         AccessPointId: !GetAtt EFSAccessPoint2.AccessPointId
                         IAM: "DISABLED"
-                    FilesystemId: !Ref EFSFileSystem
+                    FilesystemId: !Ref EFS
                     RootDirectory: "/"
                     TransitEncryption: "ENABLED"
               - 
@@ -546,7 +662,7 @@ Resources:
                     AuthorizationConfig: 
                         AccessPointId: !GetAtt EFSAccessPoint3.AccessPointId
                         IAM: "DISABLED"
-                    FilesystemId: !Ref EFSFileSystem
+                    FilesystemId: !Ref EFS
                     RootDirectory: "/"
                     TransitEncryption: "ENABLED"
             RequiresCompatibilities: 
