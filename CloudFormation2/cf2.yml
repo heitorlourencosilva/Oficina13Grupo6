@@ -367,6 +367,7 @@ Resources:
     RDSDBSubnetGroup:
         Type: "AWS::RDS::DBSubnetGroup"
         Properties:
+            DBSubnetGroupDescription: "subnet_group_rds"
             DBSubnetGroupName: "subnet_group_rds"
             SubnetIds: 
               - !Ref SubnetPriv1
@@ -382,7 +383,7 @@ Resources:
               - !GetAtt SubnetPub3.AvailabilityZone
             BackupRetentionPeriod: 30
             DatabaseName: "db_humhub"
-            DBClusterIdentifier: "rds_cluster${tagName}"
+            DBClusterIdentifier: "rds-cluster-1"
             DBClusterParameterGroupName: "default.aurora-mysql8.0"
             DBSubnetGroupName: !Ref RDSDBSubnetGroup
             Engine: "aurora-mysql"
@@ -397,38 +398,40 @@ Resources:
             EngineVersion: "8.0.mysql_aurora.3.02.2"
             EnableIAMDatabaseAuthentication: false
             EngineMode: "provisioned"
-            DeletionProtection: true
+            DeletionProtection: false # padrao true
             EnableHttpEndpoint: false
+            ServerlessV2ScalingConfiguration:
+              MinCapacity: 0.5
+              MaxCapacity: 2
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "rds-cluster-1${tagName}"
 
     RDSDBInstance:
         Type: "AWS::RDS::DBInstance"
         Properties:
-            DBInstanceIdentifier: "rds_instance_${SubnetPub1.AvailabilityZone}${tagName}"
+            DBInstanceIdentifier: !Sub "rds-instance-${SubnetPub1.AvailabilityZone}-1"
             DBInstanceClass: "db.serverless"
             Engine: "aurora-mysql"
-            DBName: "db_humhub"
-            PreferredBackupWindow: "07:52-08:22"
             AvailabilityZone: !GetAtt SubnetPub1.AvailabilityZone
             PreferredMaintenanceWindow: "sat:10:09-sat:10:39"
-            MultiAZ: false
-            EngineVersion: "8.0.mysql_aurora.3.02.2"
             AutoMinorVersionUpgrade: true
             LicenseModel: "general-public-license"
             PubliclyAccessible: true
-            StorageType: "aurora"
-            Port: 3306
             DBClusterIdentifier: !Ref RDSDBCluster
             MonitoringInterval: 60
             PromotionTier: 0
             EnablePerformanceInsights: true
             PerformanceInsightsRetentionPeriod: 7
-            DBSubnetGroupName: !Ref RDSDBSubnetGroup
-            VPCSecurityGroups: 
-              - !Ref SecurityGroupRDS
             DBParameterGroupName: "default.aurora-mysql8.0"
             OptionGroupName: "default:aurora-mysql-8-0"
             MonitoringRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/rds-monitoring-role"
             CACertificateIdentifier: "rds-ca-2019"
+            Tags: 
+              - 
+                Key: "Name"
+                Value: !Sub "rds-instance-${SubnetPub1.AvailabilityZone}-1${tagName}"
 
 # EFS
     EFS:
@@ -538,6 +541,7 @@ Resources:
 
     ECSService:
         Type: "AWS::ECS::Service"
+        DependsOn: RDSDBInstance
         Properties:
             ServiceName: !Sub "ecs_service${tagName}"
             Cluster: !GetAtt ECSCluster.Arn
@@ -565,7 +569,7 @@ Resources:
                       - !Ref SubnetPriv1
                       - !Ref SubnetPriv2
                       - !Ref SubnetPriv3
-            HealthCheckGracePeriodSeconds: 0
+            # HealthCheckGracePeriodSeconds: 0
             SchedulingStrategy: "REPLICA"
             DeploymentController: 
                 Type: "ECS"
@@ -640,7 +644,7 @@ Resources:
             Volumes: 
               - 
                 Name: "config"
-                DockerVolumeConfiguration: 
+                EFSVolumeConfiguration: 
                     AuthorizationConfig: 
                         AccessPointId: !GetAtt EFSAccessPoint.AccessPointId
                         IAM: "DISABLED"
@@ -649,7 +653,7 @@ Resources:
                     TransitEncryption: "ENABLED"
               - 
                 Name: "uploads"
-                DockerVolumeConfiguration: 
+                EFSVolumeConfiguration: 
                     AuthorizationConfig: 
                         AccessPointId: !GetAtt EFSAccessPoint2.AccessPointId
                         IAM: "DISABLED"
@@ -658,7 +662,7 @@ Resources:
                     TransitEncryption: "ENABLED"
               - 
                 Name: "modules"
-                DockerVolumeConfiguration: 
+                EFSVolumeConfiguration: 
                     AuthorizationConfig: 
                         AccessPointId: !GetAtt EFSAccessPoint3.AccessPointId
                         IAM: "DISABLED"
